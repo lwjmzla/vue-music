@@ -32,7 +32,7 @@ export default {
     },
     interval: {
       type: Number,
-      default: 1000
+      default: 4000
     }
   },
   mounted () {
@@ -52,8 +52,15 @@ export default {
     }, 20)
   },
   destroyed () {
-    // console.log(1)
-    // clearTimeout(this.timer)
+    clearTimeout(this.timer)
+  },
+  deactivated () {
+    clearTimeout(this.timer)
+  },
+  activated () { // 切换路由触发的函数  deactivated 还有这个钩子 类似destroyed 功能
+    if (this.autoPlay && this.loop) {
+      this._play()
+    }
   },
   methods: {
     _setSliderWidth (isResize) {
