@@ -24,6 +24,7 @@ import Slider from 'base/slider/slider'
 import { getRecommend } from 'api/recommend'
 import {ERR_OK} from 'api/config'
 export default {
+  name: 'recommend',
   created () {
     this._getRecommend()
   },

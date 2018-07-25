@@ -32,7 +32,7 @@ export default {
     },
     interval: {
       type: Number,
-      default: 4000
+      default: 1000
     }
   },
   mounted () {
@@ -50,6 +50,10 @@ export default {
         this._setSliderWidth(true)
       })
     }, 20)
+  },
+  destroyed () {
+    // console.log(1)
+    // clearTimeout(this.timer)
   },
   methods: {
     _setSliderWidth (isResize) {
