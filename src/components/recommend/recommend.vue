@@ -1,11 +1,11 @@
 <template>
   <div class="recommend" ref="recommend">
-    <div class="recommend-content">
+    <div class="recommend-content" ref="">
       <div v-if="recommends.length" class="slider-wrapper">
         <slider>
           <div v-for="item in recommends" :key="item.id">
             <a :href="item.linkUrl">
-              <img :src="item.picUrl" />
+              <img :src="item.picUrl" @load="refreshScroll"/>
             </a>
           </div>
         </slider>
@@ -15,7 +15,7 @@
         <ul>
           <li v-for="item in discList" :key="item.listennum" class="item">
             <div class="icon">
-              <img width="60" height="60" :src="item.imgurl" />
+              <img width="60" height="60" :src="item.imgurl"/>
             </div>
             <div class="text">
               <h2 class="name" v-html="item.creator.name"></h2>
@@ -33,6 +33,7 @@ import Slider from 'base/slider/slider'
 import { getRecommend } from 'api/recommend'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
+import BScroll from 'better-scroll'
 export default {
   name: 'recommend',
   data () {
@@ -44,6 +45,9 @@ export default {
   created () {
     this._getRecommend()
     this._getDiscList()
+  },
+  mounted () {
+    this.scroll = new BScroll(this.$refs.recommend)
   },
   methods: {
     _getRecommend () {
@@ -63,6 +67,12 @@ export default {
             this.discList = res.data.list
           }
         })
+    },
+    refreshScroll () {
+      if (!this.checkloaded) {
+        this.scroll.refresh()
+        this.checkloaded = true
+      }
     }
   },
   components: {
@@ -79,9 +89,10 @@ export default {
     width: 100%
     top: 88px
     bottom: 0
+    overflow: hidden
     .recommend-content
-      height: 100%
-      overflow: hidden
+      // height: 100%
+      // overflow: hidden
       .slider-wrapper
         position: relative
         width: 100%
