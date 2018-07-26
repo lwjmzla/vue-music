@@ -22,8 +22,8 @@
     </ul>
     <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove="onShortcutTouchMove" @touchend="onShortcutTouchEnd" ref="">
       <ul ref="alphaUl">
-        <li class="item" :class="{'current':currentIndex===index}" @click="handleLetterClick">热</li>
-        <li v-for="(item, index) in normalSingers" class="item" :class="{'current':currentIndex===index}" @click="handleLetterClick"  :key="index">{{item.title}}</li>
+        <li class="item itemAlpha" :class="{'current':currentIndex===0}" @click="handleLetterClick">热</li>
+        <li v-for="(item, index) in normalSingers" class="item itemAlpha" :class="{'current':currentIndex-1===index}" @click="handleLetterClick"  :key="index">{{item.title}}</li>
       </ul>
     </div>
   </div>
@@ -55,11 +55,16 @@ export default {
   },
   methods: {
     handleLetterClick (e) {
-      // console.log(e.target.innerText)
+      console.log(e.target.innerText)
       let letter = e.target.innerText
       if (letter === '热') {
         letter = 'hot'
       }
+      const eles = Array.from(document.querySelectorAll('.itemAlpha'))
+      eles.forEach((ele, index) => {
+        ele.classList.remove('current')
+      })
+      e.target.classList.add('current')
       this.scroll.scrollToElement(this.$refs[letter][0] || this.$refs[letter])
     },
     onShortcutTouchStart (e) {
@@ -68,10 +73,11 @@ export default {
     onShortcutTouchMove (e) {
       if (this.touchStatus) {
         const touchY = e.touches[0].clientY - this.ulToTop - 20 - 88 // 相当于是基于开始点 长度多少
-        const index = Math.floor(touchY / 18)
-        // console.log(index)
-        // console.log(document.querySelectorAll('.listAlpha')[index])
+        let index = Math.floor(touchY / 18)
+        if (index < 0) { index = 0 }
+        if (index > this.normalSingers.length) { index = this.normalSingers.length }
         this.currentIndex = index
+        console.log(index)
         this.scroll.scrollToElement(document.querySelectorAll('.listAlpha')[index])
       }
     },
