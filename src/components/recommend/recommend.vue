@@ -15,7 +15,7 @@
         <ul>
           <li v-for="item in discList" :key="item.listennum" class="item">
             <div class="icon">
-              <img width="60" height="60" :src="item.imgurl"/>
+              <img width="60" height="60" v-lazy="item.imgurl"/>
             </div>
             <div class="text">
               <h2 class="name" v-html="item.creator.name"></h2>
@@ -24,6 +24,9 @@
           </li>
         </ul>
       </div>
+    </div>
+    <div class="loading-container" v-show="!discList.length">
+      <loading></loading>
     </div>
   </div>
 </template>
@@ -34,6 +37,7 @@ import { getRecommend } from 'api/recommend'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import BScroll from 'better-scroll'
+import Loading from 'base/loading/loading'
 export default {
   name: 'recommend',
   data () {
@@ -68,7 +72,7 @@ export default {
           }
         })
     },
-    refreshScroll () {
+    refreshScroll () { // 因为banner图片的高度会撑开。传的图片尺寸会改的。
       if (!this.checkloaded) {
         this.scroll.refresh()
         this.checkloaded = true
@@ -76,7 +80,8 @@ export default {
     }
   },
   components: {
-    Slider
+    Slider,
+    Loading
   }
 }
 </script>
@@ -126,9 +131,9 @@ export default {
               color: $color-text
             .desc
               color: $color-text-d
-      .loading-container
-        position: absolute
-        width: 100%
-        top: 50%
-        transform: translateY(-50%)
+    .loading-container
+      position: absolute
+      width: 100%
+      top: 50%
+      transform: translateY(-50%)
 </style>
