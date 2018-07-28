@@ -20,7 +20,7 @@
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove="onShortcutTouchMove" @touchend="onShortcutTouchEnd" ref="">
+    <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove" @touchend="onShortcutTouchEnd" ref="">
       <ul ref="alphaUl">
         <li class="item itemAlpha" :class="{'current':currentIndex===0}" @click="handleLetterClick">热</li>
         <li v-for="(item, index) in normalSingers" class="item itemAlpha" :class="{'current':currentIndex-1===index}" @click="handleLetterClick"  :key="index">{{item.title}}</li>
