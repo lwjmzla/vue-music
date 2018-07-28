@@ -26,6 +26,10 @@
         <li v-for="(item, index) in normalSingers" class="item itemAlpha" :class="{'current':currentIndex-1===index}" @click="handleLetterClick"  :key="index">{{item.title}}</li>
       </ul>
     </div>
+
+    <div class="list-fixed" v-show="fixedTitle" ref="listFixed">
+      <h1 class="fixed-title">{{fixedTitle}}</h1>
+    </div>
   </div>
 </template>
 
@@ -44,14 +48,53 @@ export default {
   },
   data () {
     return {
-      currentIndex: 0
+      currentIndex: 0,
+      listHeight: [], // 存放着 每个li到top的距离
+      scrollY: 0,
+      orginScrollY: 0,
+      diff: 0 // 到下一级 差多少距离  比如现在 是A 到B 还差多少距离  就是这个
+    }
+  },
+  computed: {
+    fixedTitle () {
+      if (this.orginScrollY > 0) {
+        return ''
+      }
+      let fixTitle = ['热门']
+      this.normalSingers.forEach((obj, index) => {
+        fixTitle.push(obj.title)
+      })
+      return fixTitle[this.currentIndex]
     }
   },
   mounted () {
-    this.scroll = new BScroll(this.$refs.listview)
-    // console.dir(this.$refs.listview_scroll)
-    // this.startY = this.$refs['A'][0].offsetTop
+    this.scroll = new BScroll(this.$refs.listview, {
+      probeType: 3, // 设置了这个 BS 的scroll 事件才有效
+      click: true // 设置了这个,让原生的click事件可以出发scroll  BS 的scroll 事件 里的pos 才能准时获取正确的值
+    })
     this.ulToTop = this.$refs.alphaUl.offsetTop
+    this.scroll.on('scroll', (pos) => {
+      this.orginScrollY = pos.y
+      this.scrollY = Math.abs(pos.y)
+      for (let i = 0; i < this.listHeight.length; i++) {
+        if (this.scrollY >= this.listHeight[i] && this.scrollY < this.listHeight[i + 1]) {
+          this.currentIndex = i
+          this.diff = this.listHeight[i + 1] - this.scrollY
+          return
+        }
+      }
+    })
+    this._calculate()
+  },
+  watch: {
+    diff (newVal) {
+      const elListFixed = this.$refs.listFixed
+      if (newVal <= elListFixed.offsetHeight) {
+        elListFixed.style.transform = 'translateY(' + -(elListFixed.offsetHeight - newVal) + 'px)'
+      } else {
+        elListFixed.style.transform = 'translateY(0px)'
+      }
+    }
   },
   methods: {
     handleLetterClick (e) {
@@ -60,12 +103,12 @@ export default {
       if (letter === '热') {
         letter = 'hot'
       }
-      const eles = Array.from(document.querySelectorAll('.itemAlpha'))
-      eles.forEach((ele, index) => {
-        ele.classList.remove('current')
-      })
-      e.target.classList.add('current')
-      this.scroll.scrollToElement(this.$refs[letter][0] || this.$refs[letter])
+      // const eles = Array.from(document.querySelectorAll('.itemAlpha'))
+      // eles.forEach((ele, index) => {
+      //   ele.classList.remove('current')
+      // })
+      // e.target.classList.add('current')
+      this.scroll.scrollToElement(this.$refs[letter][0] || this.$refs[letter], 200)
     },
     onShortcutTouchStart (e) {
       this.touchStatus = true
@@ -83,6 +126,16 @@ export default {
     },
     onShortcutTouchEnd (e) {
       this.touchStatus = false
+    },
+    _calculate () {
+      const lists = Array.from(document.querySelectorAll('.listAlpha'))
+      let heightToTop = 0
+      this.listHeight.push(heightToTop)
+      lists.forEach((ele, index) => {
+        const elHeight = ele.offsetHeight
+        heightToTop += elHeight
+        this.listHeight.push(heightToTop)
+      })
     }
   }
 }

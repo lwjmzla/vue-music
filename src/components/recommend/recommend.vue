@@ -102,6 +102,8 @@ export default {
         position: relative
         width: 100%
         overflow: hidden
+        height :0
+        padding-top :40%
       .recommend-list
         .list-title
           height: 65px
