@@ -138,7 +138,6 @@ export default {
       })
     },
     selectItem (item) {
-      console.log(item)
       this.$emit('select', item)
     }
   }

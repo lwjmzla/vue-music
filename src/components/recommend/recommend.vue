@@ -39,6 +39,7 @@ import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import BScroll from 'better-scroll'
 import Loading from 'base/loading/loading'
+
 export default {
   name: 'recommend',
   data () {

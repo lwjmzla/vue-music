@@ -4,7 +4,7 @@ import * as actions from './actions'
 import * as getters from './getters'
 import state from './state'
 import mutations from './mutations'
-import createLooger from 'vuex/dist/logger'
+import createLooger from 'vuex/dist/logger' // 开发环境看日志
 
 Vue.use(Vuex)
 

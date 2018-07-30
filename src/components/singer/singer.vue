@@ -14,6 +14,7 @@ import * as types from 'api/config'
 import axios from 'axios'
 import ListView from 'base/listview/listview'
 import Loading from 'base/loading/loading'
+import {mapMutations} from 'vuex'
 export default {
   data () {
     return {
@@ -77,7 +78,11 @@ export default {
       this.$router.push({
         path: `/singer/${item.Fsinger_mid}`
       })
-    }
+      this.setSinger(item)
+    },
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    })
   }
 }
 </script>
