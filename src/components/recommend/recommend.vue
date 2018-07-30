@@ -33,7 +33,8 @@
 
 <script type="text/ecmascript-6">
 import Slider from 'base/slider/slider'
-import { getRecommend } from 'api/recommend'
+// import { getRecommend } from 'api/recommend'
+import * as types from 'api/recommend'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import BScroll from 'better-scroll'
@@ -55,7 +56,7 @@ export default {
   },
   methods: {
     _getRecommend () {
-      getRecommend().then((res) => {
+      types.getRecommend().then((res) => {
         // console.log(res.data.slider)
         if (res.code === ERR_OK) {
           this.recommends = res.data.slider

@@ -1,14 +1,16 @@
 <template>
   <div class="singer" ref="singer">
-    <list-view  v-if="singers.length" :hotSingers="hotSingers" :normalSingers="normalSingers" ref="list"></list-view>
+    <list-view  v-if="singers.length" :hotSingers="hotSingers" :normalSingers="normalSingers" ref="list" @select="selectSinger"></list-view>
     <div class="loading-container" v-show="!singers.length">
       <loading></loading>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import {ERR_OK} from 'api/config'
+// import {ERR_OK} from 'api/config'
+import * as types from 'api/config'
 import axios from 'axios'
 import ListView from 'base/listview/listview'
 import Loading from 'base/loading/loading'
@@ -66,10 +68,15 @@ export default {
         .then((resp) => {
           const res = resp.data
           // console.log(res)
-          if (res.code === ERR_OK) {
+          if (res.code === types.ERR_OK) {
             this.singers = res.data.list
           }
         })
+    },
+    selectSinger (item) {
+      this.$router.push({
+        path: `/singer/${item.Fsinger_mid}`
+      })
     }
   }
 }
