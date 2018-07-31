@@ -1,17 +1,27 @@
 <template>
   <div class="music-list">
-    <div class="back">
+    <div class="back" @click="back">
       <i class="icon-back"></i>
     </div>
-    <div class="little_bg" :style="bgStyle"></div>
+    <div class="little_bg" :style="bgStyle" ref="little_bg"></div>
+    <!-- little_bg的作用就是用来往上滚的时候，遮挡溢出的字体 -->
     <h1 class="title" v-html="title" ref="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <div class="play-wrapper">
+        <div ref="playBtn" v-show="songs.length" class="play" @click="random">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
       <div class="filter" ref="filter"></div>
     </div>
     <div class="bg-layer" ref="layer"></div>
     <div class="list" ref="list">
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
+      </div>
+      <div class="loading-container" v-show="!songs.length">
+        <loading></loading>
       </div>
     </div>
   </div>
@@ -20,9 +30,11 @@
 <script type="text/ecmascript-6">
 import SongList from 'base/song-list/song-list'
 import BScroll from 'better-scroll'
+import Loading from 'base/loading/loading'
 export default {
   components: {
-    SongList
+    SongList,
+    Loading
   },
   props: {
     bgImage: {
@@ -66,7 +78,25 @@ export default {
       }
       this.$refs.layer.style.transform = `translateY(${this.scrollY}px)`
       console.log(pos.y)
+      let scale = 1
+      if (this.scrollY > 0) { // 往下拉的时候
+        const percent = this.scrollY / this.bgImageHeight
+        scale = scale + percent
+        this.$refs.bgImage.style.transform = `scale(${scale})`
+        this.$refs.bgImage.style.zIndex = 10
+        this.$refs.little_bg.style.display = 'none'
+      } else {
+        this.$refs.bgImage.style.transform = `scale(1)`
+        this.$refs.bgImage.style.zIndex = 0
+        this.$refs.little_bg.style.display = 'block'
+      }
     })
+  },
+  methods: {
+    back () {
+      this.$router.back()
+    },
+    random () {}
   }
 }
 </script>
@@ -83,6 +113,7 @@ export default {
     left 0
     z-index 30
     background-size cover
+    transform-origin: top
     &::before{
       content ''
       position absolute
@@ -169,6 +200,11 @@ export default {
       background: $color-background
       .song-list-wrapper
         padding: 20px 30px
+      .loading-container
+        position: absolute
+        width: 100%
+        top: 50%
+        transform: translateY(-50%)
       .loading-container
         position: absolute
         width: 100%
