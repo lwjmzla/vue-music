@@ -3,6 +3,7 @@
     <div class="back">
       <i class="icon-back"></i>
     </div>
+    <div class="little_bg" :style="bgStyle"></div>
     <h1 class="title" v-html="title" ref="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="filter" ref="filter"></div>
@@ -62,11 +63,6 @@ export default {
       this.scrollY = pos.y
       if (-this.scrollY >= this.bgImageHeight - this.$refs.title.offsetHeight) { // 往上滚 可滚动的距离
         this.scrollY = -(this.bgImageHeight - this.$refs.title.offsetHeight)
-        this.$refs.bgImage.style.paddingTop = 0
-        this.$refs.bgImage.style.height = this.$refs.title.offsetHeight + 'px'
-      } else {
-        this.$refs.bgImage.style.paddingTop = '70%'
-        this.$refs.bgImage.style.height = 0
       }
       this.$refs.layer.style.transform = `translateY(${this.scrollY}px)`
       console.log(pos.y)
@@ -78,7 +74,22 @@ export default {
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
   @import "~common/stylus/mixin"
-
+  .little_bg
+    width 100%
+    height 40px
+    overflow hidden
+    position absolute
+    top 0
+    left 0
+    z-index 30
+    background-size cover
+    &::before{
+      content ''
+      position absolute
+      width 100%
+      height 100%
+      background: rgba(7,17,27,0.4)
+    }
   .music-list
     position: fixed
     z-index: 100
