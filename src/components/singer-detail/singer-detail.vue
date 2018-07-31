@@ -1,8 +1,6 @@
 <template>
   <transition name="slide">
-    <div class="singer-detail">
-
-    </div>
+    <music-list :songs="songs" :title="title" :bgImage="bgImage"></music-list>
   </transition>
 
 </template>
@@ -13,6 +11,7 @@ import {mapGetters} from 'vuex'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import {createSong} from 'common/js/song.js'
+import MusicList from 'components/music-list/music-list'
 export default {
   data () {
     return {
@@ -20,35 +19,46 @@ export default {
     }
   },
   components: {
-
+    MusicList
   },
   computed: {
-    ...mapGetters(['singer'])
+    ...mapGetters(['singer']),
+    title () {
+      return this.singer.Fsinger_name
+    },
+    bgImage () {
+      return 'https://y.gtimg.cn/music/photo_new/T001R300x300M000' + this.singer.Fsinger_mid + '.jpg?max_age=2592000'
+    }
   },
   created () {
     this._getDetail()
   },
   methods: {
-    _getDetail () {
+    async _getDetail () {
       if (!this.singer.Fsinger_mid) {
         this.$router.push('/singer')
         return
       }
+
+      const data = await axios.get('/api/vkey.json')
+      const arrDataVkey = data.data.url_mid.data.midurlinfo
+      // console.log(arrDataVkey)
+
       axios.get('/api/singer-detail.json?id=' + this.singer.Fsinger_mid)
         .then((resp) => {
           const res = resp.data
           // console.log(res)
           if (res.code === ERR_OK) {
-            this.songs = this._normalizeSongs(res.data.list)
-            console.log(this.songs)
+            this.songs = this._normalizeSongs(res.data.list, arrDataVkey)
+            // console.log(this.songs)
           }
         })
     },
-    _normalizeSongs (list) {
+    _normalizeSongs (list, arrDataVkey) {
       let ret = []
-      list.forEach((item) => {
+      list.forEach((item, index) => {
         let {musicData} = item // 其实本来可以直接push musicData这个对象。但是里面 的属性 并非都是 我想要的，所以 就进行了改造  就有了 createSong方法
-        ret.push(createSong(musicData)) // 保存了好多歌的 实例 然后 有好多属性。
+        ret.push(createSong(musicData, arrDataVkey[index].vkey)) // 保存了好多歌的 实例 然后 有好多属性。
       })
       return ret
     }
@@ -57,16 +67,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-  @import "~common/stylus/variable"
   .slide-enter-active, .slide-leave-active {transition: all .3s ease-out}
   .slide-enter, .slide-leave-to {transform:translateX(100%)}
 
-  .singer-detail
-    position :fixed
-    z-index :100
-    top: 0
-    left :0
-    right:0
-    bottom :0
-    background :$color-background
 </style>
