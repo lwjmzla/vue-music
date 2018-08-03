@@ -94,6 +94,7 @@ export default {
   },
   methods: {
     back () {
+      this.scroll.destroy()
       this.$router.back()
     },
     random () {}
