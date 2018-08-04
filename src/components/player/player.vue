@@ -1,11 +1,11 @@
 <template>
   <div class="player" v-show="playlist.length">
     <transition name="normal"
-      @enter="enter"
-      @after-enter="afterEnter"
-      @leave="leave"
-      @after-leave="afterLeave"
     >
+    <!-- @enter="enter"
+    @after-enter="afterEnter"
+    @leave="leave"
+    @after-leave="afterLeave" -->
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
           <img width="100%" height="100%" :src="currentSong.image" />
@@ -19,7 +19,7 @@
         </div>
         <div class="middle">
           <div class="middle-l">
-            <div class="cd-wrapper">
+            <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd">
                 <img class="image" :src="currentSong.image"  />
               </div>
@@ -67,6 +67,7 @@
 
 <script type="text/ecmascript-6">
 import {mapGetters, mapMutations} from 'vuex'
+// import animations from 'create-keyframe-animation'
 
 export default {
   computed: {
@@ -89,6 +90,59 @@ export default {
     open () {
       this.setFullScreen(true)
     }
+    // enter (el, done) {
+    //   const {x, y, scale} = this._getPosAndScale()
+    //   let animation = {
+    //     0: {
+    //       transform: `translate(${x}px,${y}px) scale(${scale})`
+    //     },
+    //     60: {
+    //       transform: `translate(0,0) scale(1.1)`
+    //     },
+    //     100: {
+    //       transform: `translate(0,0) scale(1)`
+    //     }
+    //   }
+    //   animations.registerAnimation({
+    //     name: 'move',
+    //     animation,
+    //     presets: {
+    //       duration: 400,
+    //       easing: 'linear'
+    //     }
+    //   })
+    //   animations.runAnimation(this.$refs.cdWrapper, 'move', done) // done其实就是让其执行下一个函数afterEnter
+    // },
+    // afterEnter () {
+    //   animations.unregisterAnimation('move')
+    //   this.$refs.cdWrapper.style.animation = ''
+    // },
+    // leave (el, done) {
+    //   this.$refs.cdWrapper.style.transition = 'all 0.4s'
+    //   const {x, y, scale} = this._getPosAndScale()
+    //   this.$refs.cdWrapper.style.transform = `translate(${x}px,${y}px) scale(${scale})`
+    //   this.$refs.cdWrapper.addEventListener('transitionend', done)
+    // },
+    // afterLeave () {
+    //   this.$refs.cdWrapper.style.transition = ''
+    //   this.$refs.cdWrapper.style.transform = ''
+    // },
+    // _getPosAndScale () { // 计算 x y 位移坐标
+    //   const smallWidth = 40
+    //   const smallPaddingLeft = 40 // 小图的圆心 距离左边的距离
+    //   const smallPaddingBottom = 40 // 小图的圆心 距离底部的距离
+    //   const bigWidth = window.innerWidth * 0.8
+    //   const scale = smallWidth / bigWidth
+    //   const x = -(window.innerWidth / 2 - smallPaddingLeft) // 负的是因为 相对大图圆心的位置而言
+    //   const y = window.innerHeight - 80 - bigWidth / 2 - smallPaddingBottom
+    //   console.log(x)
+    //   console.log(y)
+    //   return {
+    //     x,
+    //     y,
+    //     scale
+    //   }
+    // }
   }
 }
 </script>
@@ -269,12 +323,16 @@ export default {
         transition: all 0.4s
         .top, .bottom
           transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)
+        .cd-wrapper
+          transition: all 0.4s
       &.normal-enter, &.normal-leave-to
         opacity: 0
         .top
           transform: translate3d(0, -100px, 0)
         .bottom
           transform: translate3d(0, 100px, 0)
+        .cd-wrapper
+          transform: translate3d(-147.5px, 397px, 0)
     .mini-player
       display: flex
       align-items: center
