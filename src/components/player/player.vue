@@ -1,11 +1,6 @@
 <template>
   <div class="player" v-show="playlist.length">
-    <transition name="normal"
-    >
-    <!-- @enter="enter"
-    @after-enter="afterEnter"
-    @leave="leave"
-    @after-leave="afterLeave" -->
+    <transition name="normal">
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
           <img width="100%" height="100%" :src="currentSong.image" />
@@ -20,25 +15,30 @@
         <div class="middle">
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
+              <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image"  />
               </div>
             </div>
           </div>
         </div>
         <div class="bottom">
+          <div class="process-wrapper">
+            <span class="time time-l">{{currentTime}}</span>
+            <div class="process-bar-wrapper"></div>
+            <span class="time time-r">{{totalTime}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
-              <i class="icon-prev"></i>
+            <div class="icon i-left" :class="disableCls">
+              <i class="icon-prev" @click="prev"></i>
             </div>
-            <div class="icon i-center">
-              <i class="icon-play"></i>
+            <div class="icon i-center" :class="disableCls">
+              <i :class="playIcon" @click="togglePlaying"></i>
             </div>
-            <div class="icon i-right">
-              <i class="icon-next"></i>
+            <div class="icon i-right" :class="disableCls">
+              <i class="icon-next" @click="next"></i>
             </div>
             <div class="icon i-right">
               <i class="icon icon-not-favorite"></i>
@@ -50,33 +50,55 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img width="40" height="40" :src="currentSong.image" />
+          <img :class="cdCls" width="40" height="40" :src="currentSong.image" />
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
-        <div class="control"></div>
+        <div class="control">
+          <i :class="miniPlayIcon" @click.stop="togglePlaying"></i>
+        </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url"></audio>
+    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import {mapGetters, mapMutations} from 'vuex'
-// import animations from 'create-keyframe-animation'
 
 export default {
+  data () {
+    return {
+      songReady: false,
+      currentTime: 0,
+      totalTime: 0
+    }
+  },
   computed: {
     ...mapGetters([
       'fullScreen',
       'playlist',
-      'currentSong'
-    ])
+      'currentSong',
+      'playing',
+      'currentIndex'
+    ]),
+    playIcon () {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    miniPlayIcon () {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    cdCls () {
+      return this.playing ? 'play' : 'play pause'
+    },
+    disableCls () {
+      return this.songReady ? '' : 'disable'
+    }
   },
   mounted () {
     // 这个没卵用 一开始加载就是空对象来的
@@ -86,64 +108,74 @@ export default {
       this.setFullScreen(false)
     },
     ...mapMutations({
-      setFullScreen: 'SET_FULL_SCREEN'
+      setFullScreen: 'SET_FULL_SCREEN',
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
     }),
     open () {
       this.setFullScreen(true)
+    },
+    togglePlaying () {
+      this.setPlayingState(!this.playing)
+    },
+    prev () {
+      if (!this.songReady) { // 防止点击过快
+        return
+      }
+      let index = this.currentIndex - 1
+      if (index === -1) {
+        index = this.playlist.length - 1
+      }
+      this.setCurrentIndex(index)
+      this.songReady = false
+    },
+    next () {
+      if (!this.songReady) { // 防止点击过快
+        return
+      }
+      let index = this.currentIndex + 1
+      if (index === this.playlist.length) {
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      this.songReady = false
+    },
+    ready () { // 防止点击过快
+      this.songReady = true
+    },
+    error () {
+      this.songReady = true // 如果歌曲链接失效，不让其进入死锁
+    },
+    updateTime (e) {
+      // console.dir(e.target)
+      // console.log(typeof e.target.duration)
+      this.currentTime = this.countTime(e.target.currentTime)
+    },
+    countTime (time) {
+      let correctTime
+      let min
+      if (time >= 60) {
+        min = parseInt(time / 60)
+      }
+      let second = Math.floor(time % 60) < 10 ? '0' + Math.floor(time % 60) : Math.floor(time % 60)
+      correctTime = min ? `${min}:${second}` : `0:${second}`
+      return correctTime
     }
-    // enter (el, done) {
-    //   const {x, y, scale} = this._getPosAndScale()
-    //   let animation = {
-    //     0: {
-    //       transform: `translate(${x}px,${y}px) scale(${scale})`
-    //     },
-    //     60: {
-    //       transform: `translate(0,0) scale(1.1)`
-    //     },
-    //     100: {
-    //       transform: `translate(0,0) scale(1)`
-    //     }
-    //   }
-    //   animations.registerAnimation({
-    //     name: 'move',
-    //     animation,
-    //     presets: {
-    //       duration: 400,
-    //       easing: 'linear'
-    //     }
-    //   })
-    //   animations.runAnimation(this.$refs.cdWrapper, 'move', done) // done其实就是让其执行下一个函数afterEnter
-    // },
-    // afterEnter () {
-    //   animations.unregisterAnimation('move')
-    //   this.$refs.cdWrapper.style.animation = ''
-    // },
-    // leave (el, done) {
-    //   this.$refs.cdWrapper.style.transition = 'all 0.4s'
-    //   const {x, y, scale} = this._getPosAndScale()
-    //   this.$refs.cdWrapper.style.transform = `translate(${x}px,${y}px) scale(${scale})`
-    //   this.$refs.cdWrapper.addEventListener('transitionend', done)
-    // },
-    // afterLeave () {
-    //   this.$refs.cdWrapper.style.transition = ''
-    //   this.$refs.cdWrapper.style.transform = ''
-    // },
-    // _getPosAndScale () { // 计算 x y 位移坐标
-    //   const smallWidth = 40
-    //   const smallPaddingLeft = 40 // 小图的圆心 距离左边的距离
-    //   const smallPaddingBottom = 40 // 小图的圆心 距离底部的距离
-    //   const bigWidth = window.innerWidth * 0.8
-    //   const scale = smallWidth / bigWidth
-    //   const x = -(window.innerWidth / 2 - smallPaddingLeft) // 负的是因为 相对大图圆心的位置而言
-    //   const y = window.innerHeight - 80 - bigWidth / 2 - smallPaddingBottom
-    //   console.log(x)
-    //   console.log(y)
-    //   return {
-    //     x,
-    //     y,
-    //     scale
-    //   }
-    // }
+  },
+  watch: {
+    currentSong (newVal) {
+      this.totalTime = this.countTime(newVal.duration)
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+        this.setPlayingState(true)
+      })
+    },
+    playing (newVal) {
+      this.$nextTick(() => {
+        const elAudio = this.$refs.audio
+        newVal ? elAudio.play() : elAudio.pause()
+      })
+    }
   }
 }
 </script>
