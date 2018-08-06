@@ -97,7 +97,7 @@ export default {
     }
   },
   methods: {
-    handleLetterClick (e) {
+    handleLetterClick (e) { // ------------------迟点用touchstart取代click-------------------------------
       console.log(e.target.innerText)
       let letter = e.target.innerText
       if (letter === '热') {

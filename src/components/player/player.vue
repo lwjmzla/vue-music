@@ -82,7 +82,9 @@ export default {
     return {
       songReady: false,
       currentTime: 0,
-      totalTime: 0
+      totalTime: 0,
+      currentDuration: 0,
+      totalDuration: 0
     }
   },
   computed: {
@@ -106,7 +108,7 @@ export default {
       return this.songReady ? '' : 'disable'
     },
     percent () {
-      return this.currentTime / this.totalTime
+      return this.currentDuration / this.totalDuration
     }
   },
   mounted () {
@@ -158,6 +160,7 @@ export default {
     updateTime (e) {
       // console.dir(e.target)
       // console.log(typeof e.target.duration)
+      this.currentDuration = e.target.currentTime
       this.currentTime = this.countTime(e.target.currentTime)
     },
     countTime (time) {
@@ -170,6 +173,7 @@ export default {
   },
   watch: {
     currentSong (newVal) {
+      this.totalDuration = newVal.duration
       this.totalTime = this.countTime(newVal.duration)
       this.$nextTick(() => {
         this.$refs.audio.play()
