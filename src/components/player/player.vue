@@ -22,9 +22,11 @@
           </div>
         </div>
         <div class="bottom">
-          <div class="process-wrapper">
+          <div class="progress-wrapper">
             <span class="time time-l">{{currentTime}}</span>
-            <div class="process-bar-wrapper"></div>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent"></progress-bar>
+            </div>
             <span class="time time-r">{{totalTime}}</span>
           </div>
           <div class="operators">
@@ -70,8 +72,12 @@
 
 <script type="text/ecmascript-6">
 import {mapGetters, mapMutations} from 'vuex'
+import ProgressBar from 'base/progress-bar/progress-bar'
 
 export default {
+  components: {
+    ProgressBar
+  },
   data () {
     return {
       songReady: false,
@@ -98,6 +104,9 @@ export default {
     },
     disableCls () {
       return this.songReady ? '' : 'disable'
+    },
+    percent () {
+      return this.currentTime / this.totalTime
     }
   },
   mounted () {
@@ -153,12 +162,9 @@ export default {
     },
     countTime (time) {
       let correctTime
-      let min
-      if (time >= 60) {
-        min = parseInt(time / 60)
-      }
+      let min = parseInt(time / 60)
       let second = Math.floor(time % 60) < 10 ? '0' + Math.floor(time % 60) : Math.floor(time % 60)
-      correctTime = min ? `${min}:${second}` : `0:${second}`
+      correctTime = `${min}:${second}`
       return correctTime
     }
   },

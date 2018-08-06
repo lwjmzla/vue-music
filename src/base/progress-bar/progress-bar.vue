@@ -1,5 +1,5 @@
 <template>
-  <div class="progress-bar">
+  <div class="progress-bar" ref="progressBar">
     <div class="bar-inner">
       <div class="progress" ref="progress"></div>
       <div class="progress-btn-wrapper">
@@ -10,7 +10,19 @@
 </template>
 
 <script type="text/ecmascript-6">
+export default {
+  props: {
+    percent: {
+      type: Number,
+      default: 0
+    },
+    watch: {
+      percent (newPercent) { // 球的最左边位置真实位置和进度调位置同一起点  动了多少就是多少。
 
+      }
+    }
+  }
+}
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
@@ -29,7 +41,7 @@
         background: $color-theme
       .progress-btn-wrapper
         position: absolute
-        left: -8px
+        left: -7px
         top: -13px
         width: 30px
         height: 30px
