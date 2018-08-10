@@ -25,7 +25,7 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{currentTime}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent"></progress-bar>
+              <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
             </div>
             <span class="time time-r">{{totalTime}}</span>
           </div>
@@ -169,6 +169,10 @@ export default {
       let second = Math.floor(time % 60) < 10 ? '0' + Math.floor(time % 60) : Math.floor(time % 60)
       correctTime = `${min}:${second}`
       return correctTime
+    },
+    onProgressBarChange (percent) {
+      this.$refs.audio.currentTime = this.$refs.audio.duration * percent
+      this.setPlayingState(true)
     }
   },
   watch: {
