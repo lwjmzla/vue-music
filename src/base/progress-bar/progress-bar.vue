@@ -6,6 +6,7 @@
         @touchstart.prevent="progressTouchStart"
         @touchmove.prevent="progressTouchMove"
         @touchend="progressTouchEnd"
+        @click.stop
       >
         <div class="progress-btn" ref=""></div>
       </div>
@@ -26,6 +27,7 @@ export default {
       if (newPercent >= 0 && !this.touch.initiated) {
         const barWidth = this.$refs.progressBar.offsetWidth - 16 // 自己想一下当结束的时候 那个按钮的位置是在线的最右侧，减去球的宽度就是总长度
         const offsetWidth = newPercent * barWidth
+        // const offsetWidth = Math.min(barWidth, newPercent * barWidth)
         this._offset(offsetWidth)
       }
     }

@@ -31,7 +31,7 @@
           </div>
           <div class="operators">
             <div class="icon i-left">
-              <i class="icon-sequence"></i>
+              <i :class="iconMode" @click="changeMode"></i>
             </div>
             <div class="icon i-left" :class="disableCls">
               <i class="icon-prev" @click="prev"></i>
@@ -59,24 +59,30 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i :class="miniPlayIcon" @click.stop="togglePlaying"></i>
+          <progress-circle  :percent="percent">
+            <i class="icon-mini" :class="miniPlayIcon" @click.stop="togglePlaying"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
+    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import {mapGetters, mapMutations} from 'vuex'
 import ProgressBar from 'base/progress-bar/progress-bar'
+import ProgressCircle from 'base/progress-circle/progress-circle'
+import {playMode} from 'common/js/config'
+import {shuffle} from 'common/js/util'
 
 export default {
   components: {
-    ProgressBar
+    ProgressBar,
+    ProgressCircle
   },
   data () {
     return {
@@ -93,7 +99,9 @@ export default {
       'playlist',
       'currentSong',
       'playing',
-      'currentIndex'
+      'currentIndex',
+      'mode',
+      'sequenceList'
     ]),
     playIcon () {
       return this.playing ? 'icon-pause' : 'icon-play'
@@ -109,6 +117,17 @@ export default {
     },
     percent () {
       return this.currentDuration / this.totalDuration
+    },
+    iconMode () {
+      if (this.mode === playMode.sequence) {
+        return 'icon-sequence'
+      }
+      if (this.mode === playMode.loop) {
+        return 'icon-loop'
+      }
+      if (this.mode === playMode.random) {
+        return 'icon-random'
+      }
     }
   },
   mounted () {
@@ -121,7 +140,9 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX'
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlayList: 'SET_PLAYLIST'
     }),
     open () {
       this.setFullScreen(true)
@@ -157,10 +178,22 @@ export default {
     error () {
       this.songReady = true // 如果歌曲链接失效，不让其进入死锁
     },
+    end () {
+      if (this.mode === playMode.loop) {
+        this._loop()
+      } else {
+        this.next()
+      }
+    },
+    _loop () {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+    },
     updateTime (e) {
       // console.dir(e.target)
       // console.log(typeof e.target.duration)
       this.currentDuration = e.target.currentTime
+      this.totalDuration = e.target.duration
       this.currentTime = this.countTime(e.target.currentTime)
     },
     countTime (time) {
@@ -173,11 +206,32 @@ export default {
     onProgressBarChange (percent) {
       this.$refs.audio.currentTime = this.$refs.audio.duration * percent
       this.setPlayingState(true)
+    },
+    changeMode () {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+      let list = null
+      if (this.mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this._resetCurrentIndex(list) // 有先后顺序的
+      this.setPlayList(list)
+    },
+    _resetCurrentIndex (list) {
+      let index = list.findIndex((item) => { // findIndex es6方法
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
     }
   },
   watch: {
-    currentSong (newVal) {
-      this.totalDuration = newVal.duration
+    currentSong (newVal, oldVal) {
+      if (newVal.id === oldVal.id) {
+        return
+      }
+      // this.totalDuration = newVal.duration
       this.totalTime = this.countTime(newVal.duration)
       this.$nextTick(() => {
         this.$refs.audio.play()
