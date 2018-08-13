@@ -78,6 +78,10 @@ import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
+import {Base64} from 'js-base64'
+import Lyric from 'lyric-parser'
+import {ERR_OK} from 'api/config'
+import axios from 'axios'
 
 export default {
   components: {
@@ -90,7 +94,8 @@ export default {
       currentTime: 0,
       totalTime: 0,
       currentDuration: 0,
-      totalDuration: 0
+      totalDuration: 0,
+      currentLyric: null
     }
   },
   computed: {
@@ -224,6 +229,19 @@ export default {
         return item.id === this.currentSong.id
       })
       this.setCurrentIndex(index)
+    },
+    _getLyric () {
+      axios.get('/api/lyric.json?id=' + this.currentSong.id)
+        .then((resp) => {
+          const res = resp.data
+          // console.log(res)
+          if (res.code === ERR_OK) {
+            this.lyric = Base64.decode(res.lyric) // base64 转字符串
+            this.currentLyric = new Lyric(this.lyric)
+            console.log(this.lyric)
+            console.log(this.currentLyric)
+          }
+        })
     }
   },
   watch: {
@@ -236,6 +254,7 @@ export default {
       this.$nextTick(() => {
         this.$refs.audio.play()
         this.setPlayingState(true)
+        this._getLyric()
       })
     },
     playing (newVal) {

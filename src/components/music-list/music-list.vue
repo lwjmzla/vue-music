@@ -32,6 +32,7 @@ import SongList from 'base/song-list/song-list'
 import BScroll from 'better-scroll'
 import Loading from 'base/loading/loading'
 import {mapActions} from 'vuex'
+
 export default {
   components: {
     SongList,
@@ -98,14 +99,18 @@ export default {
       this.scroll.destroy()
       this.$router.back()
     },
-    random () {},
+    random () {
+      this.randomtPlay({
+        list: this.songs
+      })
+    },
     selectItem (item, index) {
       this.selectPlay({
         list: this.songs,
         index
       })
     },
-    ...mapActions(['selectPlay'])
+    ...mapActions(['selectPlay', 'randomtPlay'])
   }
 }
 </script>
