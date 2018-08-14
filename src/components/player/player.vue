@@ -12,16 +12,27 @@
           <h1 class="title" v-html="currentSong.name" ></h1>
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
-        <div class="middle">
-          <div class="middle-l">
+        <div class="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd">
+          <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image"  />
               </div>
             </div>
           </div>
+          <div class="middle-r" ref="lyricList">
+            <div class="lyric-wrapper">
+              <div v-if="currentLyric">
+                <p ref="lyricLine" class="text" :class="{'current': currentLineNum === index}" v-for="(line,index) in currentLyric.lines" :key="index">{{line.txt}}</p>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="bottom">
+          <div class="dot-wrapper">
+            <span class="dot" :class="{'active': currentShow === 'cd'}"></span>
+            <span class="dot" :class="{'active': currentShow === 'lyric'}"></span>
+          </div>
           <div class="progress-wrapper">
             <span class="time time-l">{{currentTime}}</span>
             <div class="progress-bar-wrapper">
@@ -82,6 +93,7 @@ import {Base64} from 'js-base64'
 import Lyric from 'lyric-parser'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
+import BScroll from 'better-scroll'
 
 export default {
   components: {
@@ -95,7 +107,9 @@ export default {
       totalTime: 0,
       currentDuration: 0,
       totalDuration: 0,
-      currentLyric: null
+      currentLyric: null,
+      currentLineNum: 0,
+      currentShow: 'cd'
     }
   },
   computed: {
@@ -135,6 +149,9 @@ export default {
       }
     }
   },
+  created () {
+    this.touch = {}
+  },
   mounted () {
     // 这个没卵用 一开始加载就是空对象来的
   },
@@ -154,6 +171,7 @@ export default {
     },
     togglePlaying () {
       this.setPlayingState(!this.playing)
+      this.currentLyric.togglePlay()
     },
     prev () {
       if (!this.songReady) { // 防止点击过快
@@ -237,11 +255,73 @@ export default {
           // console.log(res)
           if (res.code === ERR_OK) {
             this.lyric = Base64.decode(res.lyric) // base64 转字符串
-            this.currentLyric = new Lyric(this.lyric)
-            console.log(this.lyric)
+            this.currentLyric = new Lyric(this.lyric, this._handleLyric)
             console.log(this.currentLyric)
+            if (this.playing) {
+              this.currentLyric.play()
+            }
+            this.scroll = new BScroll(this.$refs.lyricList, {
+              probeType: 3 // 设置了这个 BS 的scroll 事件才有效
+              // click: true // 设置了这个,让原生的click事件可以出发scroll  BS 的scroll 事件 里的pos 才能准时获取正确的值
+            })
           }
         })
+    },
+    _handleLyric ({lineNum, txt}) {
+      this.currentLineNum = lineNum
+      // this.scroll.scrollToElement(this.$refs[letter][0] || this.$refs[letter], 200)
+      if (lineNum > 5) {
+        let lineEl = this.$refs.lyricLine[lineNum - 5]
+        this.scroll.scrollToElement(lineEl, 1000)
+      } else {
+        this.scroll.scrollToElement(this.$refs.lyricLine[0], 1000)
+      }
+    },
+    middleTouchStart (e) {
+      this.touch.initiated = true
+      const touch = e.touches[0]
+      this.touch.startX = touch.pageX
+      this.touch.startY = touch.pageY
+    },
+    middleTouchMove (e) {
+      if (!this.touch.initiated) {
+        return
+      }
+      const touch = e.touches[0]
+      const deltaX = touch.pageX - this.touch.startX
+      const deltaY = touch.pageY - this.touch.startY
+      if (Math.abs(deltaY) > Math.abs(deltaX)) { // 如果主要是侧重于 Y轴 就无视它的操作
+        return
+      }
+      let dragWidth
+      if (this.currentShow === 'cd') {
+        if (deltaX >= -375 && deltaX <= 0) {
+          dragWidth = deltaX
+          this.touch.percent = Math.abs(dragWidth / window.innerWidth)
+          this.$refs.lyricList.style.transform = `translateX(${dragWidth}px)`
+        }
+      } else if (this.currentShow === 'lyric') {
+        if (deltaX >= 0 && deltaX <= window.innerWidth) {
+          dragWidth = -window.innerWidth + deltaX
+          console.log(deltaX)
+          this.touch.percent = Math.abs(dragWidth / window.innerWidth)
+          this.$refs.lyricList.style.transform = `translateX(${dragWidth}px)`
+          console.log(1)
+        }
+      }
+      // this.$refs.middleL
+    },
+    middleTouchEnd () {
+      console.log(this.touch.percent) // 直接点击的话percent还是上次的值 有点问题。看视频如何处理
+      let winWidth = window.innerWidth
+      if (this.currentShow === 'cd' && this.touch.percent > 0.1) {
+        this.$refs.lyricList.style.transform = `translateX(${-winWidth}px)`
+        this.currentShow = 'lyric'
+      } else if (this.currentShow === 'lyric' && this.touch.percent < 0.9) {
+        this.$refs.lyricList.style.transform = `translateX(0px)`
+        this.currentShow = 'cd'
+        console.log(2)
+      }
     }
   },
   watch: {
@@ -370,6 +450,7 @@ export default {
           width: 100%
           height: 100%
           overflow: hidden
+          transition: all 0.3s
           .lyric-wrapper
             width: 80%
             margin: 0 auto
