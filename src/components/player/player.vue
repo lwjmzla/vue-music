@@ -12,12 +12,15 @@
           <h1 class="title" v-html="currentSong.name" ></h1>
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
-        <div class="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd">
-          <div class="middle-l" ref="middleL">
+        <div class="middle" ref="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd" >
+          <div class="middle-l" ref="middleL" >
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image"  />
               </div>
+            </div>
+            <div class="playing-lyric-wrapper">
+              <div class="playing-lyric">{{playingLyric}}</div>
             </div>
           </div>
           <div class="middle-r" ref="lyricList">
@@ -109,7 +112,8 @@ export default {
       totalDuration: 0,
       currentLyric: null,
       currentLineNum: 0,
-      currentShow: 'cd'
+      currentShow: 'cd',
+      playingLyric: ''
     }
   },
   computed: {
@@ -177,6 +181,10 @@ export default {
       if (!this.songReady) { // 防止点击过快
         return
       }
+      if (this.playlist.length === 1) {
+        this._loop()
+        return
+      }
       let index = this.currentIndex - 1
       if (index === -1) {
         index = this.playlist.length - 1
@@ -186,6 +194,10 @@ export default {
     },
     next () {
       if (!this.songReady) { // 防止点击过快
+        return
+      }
+      if (this.playlist.length === 1) { // 因为这种情况 歌曲只有一个 watch currentSong 没变化 就不会触发的
+        this._loop()
         return
       }
       let index = this.currentIndex + 1
@@ -211,6 +223,9 @@ export default {
     _loop () {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
+      if (this.currentLyric) {
+        this.currentLyric.seek(0) // 歌词回到一开始
+      }
     },
     updateTime (e) {
       // console.dir(e.target)
@@ -229,6 +244,10 @@ export default {
     onProgressBarChange (percent) {
       this.$refs.audio.currentTime = this.$refs.audio.duration * percent
       this.setPlayingState(true)
+      const currentTime = this.currentSong.duration * percent
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
+      }
     },
     changeMode () {
       const mode = (this.mode + 1) % 3
@@ -266,6 +285,11 @@ export default {
             })
           }
         })
+        .catch(() => {
+          this.currentLyric = null
+          this.playingLyric = ''
+          this.currentLineNum = 0
+        })
     },
     _handleLyric ({lineNum, txt}) {
       this.currentLineNum = lineNum
@@ -276,6 +300,7 @@ export default {
       } else {
         this.scroll.scrollToElement(this.$refs.lyricLine[0], 1000)
       }
+      this.playingLyric = txt
     },
     middleTouchStart (e) {
       this.touch.initiated = true
@@ -299,29 +324,30 @@ export default {
           dragWidth = deltaX
           this.touch.percent = Math.abs(dragWidth / window.innerWidth)
           this.$refs.lyricList.style.transform = `translateX(${dragWidth}px)`
+          this.$refs.middleL.style.opacity = 1 - this.touch.percent
         }
       } else if (this.currentShow === 'lyric') {
         if (deltaX >= 0 && deltaX <= window.innerWidth) {
           dragWidth = -window.innerWidth + deltaX
-          console.log(deltaX)
           this.touch.percent = Math.abs(dragWidth / window.innerWidth)
           this.$refs.lyricList.style.transform = `translateX(${dragWidth}px)`
-          console.log(1)
+          this.$refs.middleL.style.opacity = this.touch.percent
         }
       }
       // this.$refs.middleL
     },
     middleTouchEnd () {
-      console.log(this.touch.percent) // 直接点击的话percent还是上次的值 有点问题。看视频如何处理
       let winWidth = window.innerWidth
-      if (this.currentShow === 'cd' && this.touch.percent > 0.1) {
+      if (this.currentShow === 'cd' && this.touch.percent && this.touch.percent > 0.1) {
         this.$refs.lyricList.style.transform = `translateX(${-winWidth}px)`
         this.currentShow = 'lyric'
-      } else if (this.currentShow === 'lyric' && this.touch.percent < 0.9) {
+        this.$refs.middleL.style.opacity = 0
+      } else if (this.currentShow === 'lyric' && this.touch.percent && this.touch.percent < 0.9) {
         this.$refs.lyricList.style.transform = `translateX(0px)`
         this.currentShow = 'cd'
-        console.log(2)
+        this.$refs.middleL.style.opacity = 1
       }
+      this.touch.percent = null // 不让他点击直接触发 而且添加判断 this.touch.percent存在的判断
     }
   },
   watch: {
@@ -331,11 +357,19 @@ export default {
       }
       // this.totalDuration = newVal.duration
       this.totalTime = this.countTime(newVal.duration)
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+      }
       this.$nextTick(() => {
         this.$refs.audio.play()
         this.setPlayingState(true)
         this._getLyric()
       })
+      // setTimeout(() => {    // 据说要来解决 微信后台后音乐结束  不执行JS 的问题
+      //   this.$refs.audio.play()
+      //   this.setPlayingState(true)
+      //   this._getLyric()
+      // }, 1000)
     },
     playing (newVal) {
       this.$nextTick(() => {
@@ -410,6 +444,7 @@ export default {
           width: 100%
           height: 0
           padding-top: 80%
+          transition: opacity 0.3s
           .cd-wrapper
             position: absolute
             left: 10%
