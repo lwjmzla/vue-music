@@ -145,7 +145,9 @@ export default {
     handlePlaylist (playlist) { // playlistMixin里调用
       const bottom = playlist.length > 0 ? '60px' : 0
       this.$refs.listview.style.bottom = bottom
-      this.scroll.refresh()
+      if (this.scroll) {
+        this.scroll.refresh()
+      }
     }
   }
 }
