@@ -322,14 +322,17 @@ export default {
       if (this.currentShow === 'cd') {
         if (deltaX >= -375 && deltaX <= 0) {
           dragWidth = deltaX
-          this.touch.percent = Math.abs(dragWidth / window.innerWidth)
+          this.touch.percent = Math.abs(dragWidth / window.innerWidth) // deltaX 都是位移/总的
           this.$refs.lyricList.style.transform = `translateX(${dragWidth}px)`
           this.$refs.middleL.style.opacity = 1 - this.touch.percent
         }
       } else if (this.currentShow === 'lyric') {
         if (deltaX >= 0 && deltaX <= window.innerWidth) {
-          dragWidth = -window.innerWidth + deltaX
-          this.touch.percent = Math.abs(dragWidth / window.innerWidth)
+          dragWidth = -window.innerWidth + deltaX // deltaX 都是位移/总的
+          this.touch.percent = Math.abs(deltaX / window.innerWidth)
+          // if (this.touch.percent === 1) { // 原来通过人手的点击 其实 也能处罚 move事件，只是 move好少而已，所以可以做 适当的判断，比如移动多少才触发
+          //   return
+          // }
           this.$refs.lyricList.style.transform = `translateX(${dragWidth}px)`
           this.$refs.middleL.style.opacity = this.touch.percent
         }
@@ -342,10 +345,16 @@ export default {
         this.$refs.lyricList.style.transform = `translateX(${-winWidth}px)`
         this.currentShow = 'lyric'
         this.$refs.middleL.style.opacity = 0
-      } else if (this.currentShow === 'lyric' && this.touch.percent && this.touch.percent < 0.9) {
+      } else if (this.currentShow === 'lyric' && this.touch.percent && this.touch.percent > 0.1) {
         this.$refs.lyricList.style.transform = `translateX(0px)`
         this.currentShow = 'cd'
         this.$refs.middleL.style.opacity = 1
+      } else if (this.currentShow === 'cd') { // 这个是移动的百分比 小于0.1情况
+        this.$refs.lyricList.style.transform = `translateX(0px)`
+        this.$refs.middleL.style.opacity = 1
+      } else if (this.currentShow === 'lyric') { // 这个是移动的百分比 小于0.1情况
+        this.$refs.lyricList.style.transform = `translateX(${-winWidth}px)`
+        this.$refs.middleL.style.opacity = 0
       }
       this.touch.percent = null // 不让他点击直接触发 而且添加判断 this.touch.percent存在的判断
     }
