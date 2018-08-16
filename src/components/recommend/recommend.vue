@@ -57,7 +57,9 @@ export default {
     this._getDiscList()
   },
   mounted () {
-    this.scroll = new BScroll(this.$refs.recommend)
+    this.scroll = new BScroll(this.$refs.recommend, {
+      click: true
+    })
   },
   methods: {
     _getRecommend () {

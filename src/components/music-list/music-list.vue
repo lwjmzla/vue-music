@@ -72,8 +72,8 @@ export default {
     this.bgImageHeight = this.$refs.bgImage.offsetHeight
     this.$refs.list.style.top = this.bgImageHeight + 'px'
     this.scroll = new BScroll(this.$refs.list, {
-      probeType: 3 // 设置了这个 BS 的scroll 事件才有效
-      // click: true // 设置了这个,让原生的click事件可以出发scroll  BS 的scroll 事件 里的pos 才能准时获取正确的值
+      probeType: 3, // 设置了这个 BS 的scroll 事件才有效
+      click: true // 设置了这个,让原生的click事件可以出发scroll  BS 的scroll 事件 里的pos 才能准时获取正确的值  // 添加了这个 手机端才能点击。。。
     })
     this.scroll.on('scroll', (pos) => {
       this.scrollY = pos.y
