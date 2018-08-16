@@ -39,8 +39,10 @@ import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import BScroll from 'better-scroll'
 import Loading from 'base/loading/loading'
+import {playlistMixin} from 'common/js/mixin'
 
 export default {
+  mixins: [playlistMixin],
   name: 'recommend',
   data () {
     return {
@@ -79,6 +81,11 @@ export default {
         this.scroll.refresh()
         this.checkloaded = true
       }
+    },
+    handlePlaylist (playlist) { // playlistMixin里调用
+      const bottom = playlist.length > 0 ? '60px' : 0
+      this.$refs.recommend.style.bottom = bottom
+      this.scroll.refresh()
     }
   },
   components: {

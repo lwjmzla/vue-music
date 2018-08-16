@@ -32,8 +32,10 @@ import SongList from 'base/song-list/song-list'
 import BScroll from 'better-scroll'
 import Loading from 'base/loading/loading'
 import {mapActions} from 'vuex'
+import {playlistMixin} from 'common/js/mixin'
 
 export default {
+  mixins: [playlistMixin],
   components: {
     SongList,
     Loading
@@ -110,7 +112,12 @@ export default {
         index
       })
     },
-    ...mapActions(['selectPlay', 'randomtPlay'])
+    ...mapActions(['selectPlay', 'randomtPlay']),
+    handlePlaylist (playlist) { // playlistMixin里调用
+      const bottom = playlist.length > 0 ? '60px' : 0
+      this.$refs.list.style.bottom = bottom
+      this.scroll.refresh()
+    }
   }
 }
 </script>

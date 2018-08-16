@@ -40,8 +40,10 @@ import BScroll from 'better-scroll'
 
 // const TITLE_HEIGHT = 30
 // const ANCHOR_HEIGHT = 18
+import {playlistMixin} from 'common/js/mixin'
 
 export default {
+  mixins: [playlistMixin],
   props: {
     hotSingers: Array,
     normalSingers: Array
@@ -139,6 +141,11 @@ export default {
     },
     selectItem (item) {
       this.$emit('select', item)
+    },
+    handlePlaylist (playlist) { // playlistMixin里调用
+      const bottom = playlist.length > 0 ? '60px' : 0
+      this.$refs.listview.style.bottom = bottom
+      this.scroll.refresh()
     }
   }
 }
@@ -149,9 +156,11 @@ export default {
   @import "~common/stylus/variable"
 
   .listview
-    position: relative
-    width: 100%
-    height: 100%
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
     overflow: hidden
     background: $color-background
     .list-group
