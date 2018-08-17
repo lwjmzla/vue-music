@@ -158,6 +158,12 @@ export default {
   },
   mounted () {
     // 这个没卵用 一开始加载就是空对象来的
+    document.addEventListener('click', () => { // 添加这个解决了在UC浏览器播放不了的问题
+      // alert(document.querySelector('audio'))
+      if (document.querySelector('audio') && this.playing) {
+        document.querySelector('audio').play()
+      }
+    })
   },
   methods: {
     back () {
