@@ -44,11 +44,11 @@ export default {
     this._getTopList()
   },
   mounted () {
-    setTimeout(() => {
-      this.scroll = new BScroll(this.$refs.toplist, {
-        click: true
-      })
-    }, 20)
+    // setTimeout(() => {
+    //   this.scroll = new BScroll(this.$refs.toplist, {
+    //     click: true
+    //   })
+    // }, 20)
   },
   methods: {
     _getTopList () {
@@ -58,11 +58,11 @@ export default {
           if (res.code === ERR_OK) {
             this.topList = res.data.topList
             console.log(this.topList)
-            // this.$nextTick(() => { // 加这个的原因 就是 待DOM渲染完毕再执行
-            //   this.scroll = new BScroll(this.$refs.toplist, {
-            //     click: true
-            //   })
-            // })
+            this.$nextTick(() => { // 加这个的原因 就是 待DOM渲染完毕再执行
+              this.scroll = new BScroll(this.$refs.toplist, {
+                click: true
+              })
+            })
           }
         })
     },
