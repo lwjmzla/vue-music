@@ -2,6 +2,9 @@
   <div class="song-list">
     <ul>
       <li v-for="(song,index) in songs" class="item" :key="index" @click="selectItem(song,index)">
+        <div class="rank" v-show="rank">
+          <span :class="getRankCls(index)">{{filter(index)}}</span>
+        </div>
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{getDesc(song)}}</p>
@@ -29,6 +32,28 @@ export default {
     },
     selectItem (song, index) {
       this.$emit('select', song, index)
+    },
+    getRankCls (index) {
+      // let obj = {}
+      // switch (index) {
+      //   case 0: obj['icon'] = true; obj['icon0'] = true; break
+      //   case 1: obj['icon'] = true; obj['icon1'] = true; break
+      //   case 2: obj['icon'] = true; obj['icon2'] = true; break
+      //   default: obj['text'] = true
+      // }
+      // return obj
+      if (index <= 2) {
+        return `icon icon${index}`
+      } else {
+        return 'text'
+      }
+    },
+    filter (index) {
+      if (index > 2) {
+        return index + 1
+      } else {
+        return ''
+      }
     }
   }
 }

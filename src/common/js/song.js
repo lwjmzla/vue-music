@@ -58,6 +58,20 @@ export function createSongDisc (musicData, url) {
   })
 }
 
+export function createSongRank (musicData, url) {
+  // console.log(musicData.singer)
+  return new Song({
+    id: musicData.songid,
+    mid: musicData.songmid,
+    singer: filterSinger(musicData.singer),
+    name: musicData.songname,
+    album: musicData.albumname,
+    duration: musicData.interval,
+    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
+    url: url
+  })
+}
+
 function filterSinger (singer) { // singer是一个数组，有可能有多个歌手 用 / 间隔开
   let ret = []
   if (!singer) {
