@@ -10,6 +10,7 @@
 
 <script>
 import axios from 'axios'
+import {domain} from 'common/js/config'
 export default {
   data () {
     return {
@@ -37,7 +38,7 @@ export default {
       return obj
     },
     _getSingerList () {
-      axios.get('/api/singer.json')
+      axios.get(domain + '/singer.json')
         .then((resp) => {
           const res = resp.data
           // console.log(res)

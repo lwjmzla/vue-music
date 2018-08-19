@@ -90,7 +90,7 @@
 import {mapGetters, mapMutations} from 'vuex'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
-import {playMode} from 'common/js/config'
+import {playMode, domain} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 import {Base64} from 'js-base64'
 import Lyric from 'lyric-parser'
@@ -274,7 +274,7 @@ export default {
       this.setCurrentIndex(index)
     },
     _getLyric () {
-      axios.get('/api/lyric.json?id=' + this.currentSong.id)
+      axios.get(domain + '/lyric.json?id=' + this.currentSong.id)
         .then((resp) => {
           const res = resp.data
           // console.log(res)

@@ -10,6 +10,7 @@ import {mapGetters} from 'vuex'
 import axios from 'axios'
 import {ERR_OK} from 'api/config'
 import {createSongDisc} from 'common/js/song.js'
+import {domain} from 'common/js/config'
 export default {
   components: {
     MusicList
@@ -38,10 +39,10 @@ export default {
         return
       }
 
-      const data = await axios.get('/api/vkeyDisc.json')
+      const data = await axios.get(domain + '/vkeyDisc.json')
       const arrDataUrl = data.data.url_mid.data.midurlinfo
 
-      axios.get('/api/disc.json?id=' + this.disc.dissid)
+      axios.get(domain + '/disc.json?id=' + this.disc.dissid)
         .then((resp) => {
           const res = resp.data
           // console.log(res)

@@ -42,6 +42,7 @@ import BScroll from 'better-scroll'
 import Loading from 'base/loading/loading'
 import {playlistMixin} from 'common/js/mixin'
 import {mapMutations} from 'vuex'
+import {domain} from 'common/js/config'
 
 export default {
   mixins: [playlistMixin],
@@ -71,7 +72,7 @@ export default {
       })
     },
     _getDiscList () {
-      axios.get('/api/getDiscList.json')
+      axios.get(domain + '/getDiscList.json')
         .then((resp) => {
           const res = resp.data
           console.log(res)

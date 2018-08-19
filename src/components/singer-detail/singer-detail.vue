@@ -12,6 +12,7 @@ import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import {createSong} from 'common/js/song.js'
 import MusicList from 'components/music-list/music-list'
+import {domain} from 'common/js/config'
 export default {
   data () {
     return {
@@ -40,11 +41,11 @@ export default {
         return
       }
 
-      const data = await axios.get('/api/vkey.json')
+      const data = await axios.get(domain + '/vkey.json')
       const arrDataVkey = data.data.url_mid.data.midurlinfo
       // console.log(arrDataVkey)
 
-      axios.get('/api/singer-detail.json?id=' + this.singer.Fsinger_mid)
+      axios.get(domain + '/singer-detail.json?id=' + this.singer.Fsinger_mid)
         .then((resp) => {
           const res = resp.data
           // console.log(res)
