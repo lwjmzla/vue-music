@@ -16,6 +16,13 @@ module.exports = {
         pathRewrite: {
           '^/api': '/static/mock'
         }
+      },
+      '/ustbhuangyi': {
+        target: 'http://ustbhuangyi.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/ustbhuangyi': ''
+        }
       }
     },
 
