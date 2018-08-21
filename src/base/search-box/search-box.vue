@@ -20,7 +20,8 @@ export default {
   },
   data () {
     return {
-      query: ''
+      query: '',
+      timer: null
     }
   },
   methods: {
@@ -30,7 +31,23 @@ export default {
   },
   watch: {
     query (newVal) {
-      this.$emit('query', newVal)
+      // 防抖
+      // if (this.timer) {
+      //   console.log(2)
+      //   clearTimeout(this.timer)
+      //   this.timer = null
+      // }
+      // this.timer = setTimeout(() => {
+      //   console.log(1)
+      //   this.$emit('query', newVal)
+      // }, 100)
+      if (this.timer) {
+        console.log(1)
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(() => {
+        this.$emit('query', newVal)
+      }, 100)
     },
     fatherQuery (newVal) {
       this.query = newVal

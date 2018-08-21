@@ -1,15 +1,18 @@
 <template>
   <div class="suggest" ref="suggest">
     <ul class="suggest-list">
-      <li class="suggest-item">
+      <li class="suggest-item" v-for="(item,index) in result" :key="index">
         <div class="icon">
-          <i ></i>
+          <i :class="_getIconCls(item)" ></i>
         </div>
         <div class="name">
-          <p class="text" ></p>
+          <p class="text" v-html="_getDisplayName(item)"></p>
         </div>
       </li>
     </ul>
+    <div class="loading-container" v-show="!result.length">
+      <loading title="正在搜索"></loading>
+    </div>
   </div>
 </template>
 
@@ -17,7 +20,13 @@
 // import {search} from 'api/search'
 // import {ERR_OK} from 'api/config'
 import axios from 'axios'
+import {createSongCommon} from 'common/js/song'
+import Loading from 'base/loading/loading'
+import BScroll from 'better-scroll'
 export default {
+  components: {
+    Loading
+  },
   props: {
     query: {
       type: String,
@@ -31,20 +40,131 @@ export default {
   data () {
     return {
       page: 1,
-      result: []
+      result: [],
+      hasMore: true,
+      firstLoad: true
     }
   },
   methods: {
     _search () {
-      // search(this.query, this.page, this.showSinger).then((res) => {})
       axios.get(`/ustbhuangyi/music/api/search?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&w=${this.query}&p=${this.page}&perpage=20&n=20&catZhida=1&zhidaqu=1&t=0&flag=1&ie=utf-8&sem=1&aggr=0&remoteplace=txt.mqq.all&uin=0&needNewCode=1&platform=h5`)
         .then((res) => {
-          console.log(res)
+          // console.log(res.data.data)
+          this._genResult(res.data.data)
+          this._checkMore(res.data.data)
         })
+    },
+    _searchMore () {
+      if (!this.hasMore) {
+        return
+      }
+      this.page++
+      this._search()
+    },
+    _checkMore (data) {
+      const song = data.song
+      if (!song.list.length || song.curnum + song.curpage * 20 >= song.totalnum) {
+        this.hasMore = false
+      }
+    },
+    _genResult (data) {
+      let ret = []
+      if (data.zhida && data.zhida.singerid && this.firstLoad) {
+        ret.push({
+          ...data.zhida,
+          ...{type: 'singer'}
+        })
+        this.firstLoad = false
+      }
+      if (data.song) {
+        this._normalizeSongs(data.song.list).then((res) => {
+          ret = ret.concat(res)
+          // console.log(ret)
+          this.result = this.result.concat(ret)
+          this.$nextTick(() => {
+            if (!this.scroll) {
+              this.scroll = new BScroll(this.$refs.suggest, {
+                click: true
+              })
+              this.scroll.on('scrollEnd', () => {
+                console.log(this.scroll)
+                if (this.scroll.y <= this.scroll.maxScrollY + 50) {
+                  this._searchMore()
+                }
+              })
+            } else {
+              this.scroll.refresh()
+            }
+          })
+        })
+      } else {
+        this.result = ret
+      }
+    },
+    async _normalizeSongs (list) { // 这个函数的返回值也是promise
+      const songmid = []
+      list.forEach((item, index) => {
+        songmid.push(item.songmid)
+      })
+      const data = await axios.post('/ustbhuangyi/music/api/getPurlUrl',
+        {
+          comm: {
+            'g_tk': 5381,
+            'inCharset': 'utf-8',
+            'outCharset': 'utf-8',
+            'notice': 0,
+            'format': 'json',
+            'platform': 'h5',
+            'needNewCode': 1,
+            'uin': 0
+          },
+          'url_mid': {
+            'module': 'vkey.GetVkeyServer',
+            'method': 'CgiGetVkey',
+            'param': {
+              'guid': '1647338026',
+              'songmid': songmid,
+              // 'songmid': ['001LqZUG426bf5', '0049C3wC0AveAU', '001ffMIV0Pl3Q9', '0026omXJ32kFy3', '002d2pdr00Z0RI', '001pX1t02wmleo', '000gvpIK4L6GCQ', '004LLLTw2hcUeE', '0018ZGwR2P7W2J', '001MRX1v0OLzTI', '002aeZo50FBt0i', '000540hD0WGNIy', '003CjRvE0ASwPk', '0044DBoi0OCTWj', '003itHXb3dxeaF', '002PNoz60KtdRd', '0026OlSr1Elmmw', '004MEYj21mncvb', '000Y4Ov91HqkGV', '000H93JP2sw1C5'],
+              'songtype': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              'uin': '0',
+              'loginflag': 0,
+              'platform': '23'
+            }
+          }
+        }
+      )
+      const arrDataPurl = data.data.url_mid.data.midurlinfo
+      // console.log(arrDataPurl)
+      let ret = []
+      list.forEach((item, index) => {
+        ret.push(createSongCommon(item, arrDataPurl[index].purl)) // 保存了好多歌的 实例 然后 有好多属性。
+      })
+      return ret
+    },
+    _getIconCls (item) {
+      if (item.type === 'singer') {
+        return 'icon-mine'
+      } else {
+        return 'icon-music'
+      }
+    },
+    _getDisplayName (item) {
+      if (item.type === 'singer') {
+        return item.singername
+      } else {
+        return item.name + '-' + item.singer
+      }
+    },
+    _initialParams () {
+      this.firstLoad = true
+      this.page = 1
+      this.result = []
+      this.hasMore = true
     }
   },
   watch: {
     query (newVal) {
+      this._initialParams()
       this.query = newVal
       this._search()
     }
@@ -79,6 +199,11 @@ export default {
         .text
           no-wrap()
     .no-result-wrapper
+      position: absolute
+      width: 100%
+      top: 50%
+      transform: translateY(-50%)
+    .loading-container
       position: absolute
       width: 100%
       top: 50%

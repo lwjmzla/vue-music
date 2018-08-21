@@ -3,7 +3,7 @@
     <div class="search-box-wrapper">
       <search-box :fatherQuery="fatherQuery" @query="onQueryChange"></search-box>
     </div>
-    <div class="shortcut-wrapper">
+    <div class="shortcut-wrapper" v-show="!query.length">
       <div class="shortcut">
         <div class="hot-key">
           <h1 class="title">热门搜素</h1>
@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <div class="search-result">
+    <div class="search-result" v-show="query.length">
       <suggest :query="query"></suggest>
     </div>
   </div>
