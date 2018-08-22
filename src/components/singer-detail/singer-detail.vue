@@ -25,10 +25,14 @@ export default {
   computed: {
     ...mapGetters(['singer']),
     title () {
-      return this.singer.Fsinger_name
+      return this.singer.Fsinger_name || this.singer.singername
     },
     bgImage () {
-      return 'https://y.gtimg.cn/music/photo_new/T001R300x300M000' + this.singer.Fsinger_mid + '.jpg?max_age=2592000'
+      if (this.singer.Fsinger_mid) {
+        return 'https://y.gtimg.cn/music/photo_new/T001R300x300M000' + this.singer.Fsinger_mid + '.jpg?max_age=2592000'
+      } else {
+        return 'https://y.gtimg.cn/music/photo_new/T001R300x300M000' + this.singer.singermid + '.jpg?max_age=2592000'
+      }
     }
   },
   created () {
@@ -36,7 +40,7 @@ export default {
   },
   methods: {
     async _getDetail () {
-      if (!this.singer.Fsinger_mid) {
+      if (!this.singer.Fsinger_mid && !this.singer.singermid) {
         this.$router.push('/singer')
         return
       }

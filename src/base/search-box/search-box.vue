@@ -7,6 +7,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+// import {debounce} from 'common/js/util'
 export default {
   props: {
     placeholder: {
@@ -29,25 +30,21 @@ export default {
       this.query = ''
     }
   },
+  created () {
+    // this.$watch('query', debounce((newVal) => { // 用watch的方式 就用不了debounce
+    //   this.$emit('query', newVal)
+    // }, 200))
+  },
   watch: {
     query (newVal) {
       // 防抖
-      // if (this.timer) {
-      //   console.log(2)
-      //   clearTimeout(this.timer)
-      //   this.timer = null
-      // }
-      // this.timer = setTimeout(() => {
-      //   console.log(1)
-      //   this.$emit('query', newVal)
-      // }, 100)
       if (this.timer) {
-        console.log(1)
         clearTimeout(this.timer)
+        this.timer = null
       }
       this.timer = setTimeout(() => {
         this.$emit('query', newVal)
-      }, 100)
+      }, 400) // 要>= 200才有效果
     },
     fatherQuery (newVal) {
       this.query = newVal
