@@ -29,6 +29,8 @@ import Loading from 'base/loading/loading'
 import BScroll from 'better-scroll'
 import {mapMutations, mapActions} from 'vuex'
 import {playlistMixin} from 'common/js/mixin'
+// import {jsonpUrl} from 'common/js/jsonp'
+import 'whatwg-fetch'
 export default {
   mixins: [playlistMixin],
   components: {
@@ -54,6 +56,15 @@ export default {
       noResult: false,
       searchLoading: false // 这个是首次搜的loading
     }
+  },
+  created () {
+    const url = 'http://ustbhuangyi.com/music/api/search?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&w=%E8%B6%8A%E6%9D%A5%E8%B6%8A%E4%B8%8D%E6%87%82&p=1&perpage=20&n=20&catZhida=1&zhidaqu=1&t=0&flag=1&ie=utf-8&sem=1&aggr=0&remoteplace=txt.mqq.all&uin=0&needNewCode=1&platform=h5'
+    // jsonpUrl(url).then((res) => {
+    //   console.log(res)
+    // })
+    fetch(url, {mode: 'no-cors', method: 'GET'})
+      .then((res) => { return res.text() })
+      .then((res) => { console.log(res) })
   },
   methods: {
     _search () {

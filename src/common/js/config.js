@@ -7,3 +7,5 @@ export const playMode = {
 const isDev = process.env.NODE_ENV === 'development'
 
 export const domain = isDev ? '/api' : '/showPages/api' // build不能用直接反向代理。还要设置IIS之类的
+
+// export const domain = '/api' // ngnix用这个
