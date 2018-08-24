@@ -9,9 +9,11 @@
 import MusicList from 'components/music-list/music-list'
 import {mapGetters} from 'vuex'
 import axios from 'axios'
-import {domain} from 'common/js/config'
-import {ERR_OK} from 'api/config'
+// import {domain} from 'common/js/config'
+// import {ERR_OK} from 'api/config'
 import {createSongRank} from 'common/js/song.js'
+import fetchJsonp from 'fetch-jsonp'
+import {getPurlParams} from 'common/js/config'
 export default {
   components: {
     MusicList
@@ -44,16 +46,24 @@ export default {
   },
   methods: {
     async _getMusicList () {
-      const data = await axios.get(domain + '/vkeyRank.json')
-      const arrDataUrl = data.data.url_mid.data.midurlinfo
-      axios.get(domain + '/rankDetail.json?id=' + this.topList.id)
-        .then((resp) => {
-          const res = resp.data
-          // console.log(res)
-          if (res.code === ERR_OK) {
-            // console.log(res.songlist)
-            this.songs = this._normalizeSongs(res.songlist, arrDataUrl)
-          }
+      const url = `https://c.y.qq.com/v8/fcg-bin/fcg_v8_toplist_cp.fcg?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=jsonp&topid=${this.topList.id}&needNewCode=1&uin=0&tpl=3&page=detail&type=top&platform=h5`
+      fetchJsonp(url, {jsonpCallback: 'jsonpCallback'})
+        .then((res) => {
+          return res.json()
+        })
+        .then(async (json) => {
+          // console.log(json)
+          const list = json.songlist
+
+          const songmid = []
+          list.forEach((item, index) => {
+            songmid.push(item.data.songmid)
+          })
+          const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
+          // console.log(dataPurl)
+          const arrDataPurl = dataPurl.data.url_mid.data.midurlinfo
+          this.songs = this._normalizeSongs(list, arrDataPurl)
+          console.log(this.songs)
         })
     },
     _normalizeSongs (list, arrDataUrl) {

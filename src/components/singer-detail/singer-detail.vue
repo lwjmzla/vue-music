@@ -8,11 +8,13 @@
 <script>
 import {mapGetters} from 'vuex'
 // import {getSingerDetail} from 'api/singer'
-import {ERR_OK} from 'api/config'
+// import {ERR_OK} from 'api/config'
 import axios from 'axios'
-import {createSong} from 'common/js/song.js'
+import {createSongCommon} from 'common/js/song.js'
 import MusicList from 'components/music-list/music-list'
-import {domain} from 'common/js/config'
+// import {domain} from 'common/js/config'
+import fetchJsonp from 'fetch-jsonp'
+import {getPurlParams} from 'common/js/config'
 export default {
   data () {
     return {
@@ -44,26 +46,33 @@ export default {
         this.$router.push('/singer')
         return
       }
+      const singermid = this.singer.Fsinger_mid || this.singer.singermid
+      const url = `https://c.y.qq.com/v8/fcg-bin/fcg_v8_singer_track_cp.fcg?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=jsonp&hostUin=0&needNewCode=0&platform=yqq&order=listen&begin=0&num=80&songstatus=1&singermid=${singermid}`
+      fetchJsonp(url, {jsonpCallback: 'jsonpCallback'})
+        .then((res) => {
+          return res.json()
+        })
+        .then(async (json) => {
+          // console.log(json)
+          const list = json.data.list
+          // console.log(songlist)
 
-      const data = await axios.get(domain + '/vkey.json')
-      const arrDataVkey = data.data.url_mid.data.midurlinfo
-      // console.log(arrDataVkey)
-
-      axios.get(domain + '/singer-detail.json?id=' + this.singer.Fsinger_mid)
-        .then((resp) => {
-          const res = resp.data
-          // console.log(res)
-          if (res.code === ERR_OK) {
-            this.songs = this._normalizeSongs(res.data.list, arrDataVkey)
-            // console.log(this.songs)
-          }
+          const songmid = []
+          list.forEach((item, index) => {
+            songmid.push(item.musicData.songmid)
+          })
+          const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
+          // console.log(dataPurl)
+          const arrDataPurl = dataPurl.data.url_mid.data.midurlinfo
+          this.songs = this._normalizeSongs(list, arrDataPurl)
+          console.log(this.songs)
         })
     },
-    _normalizeSongs (list, arrDataVkey) {
+    _normalizeSongs (list, arrDataPurl) {
       let ret = []
       list.forEach((item, index) => {
         let {musicData} = item // 其实本来可以直接push musicData这个对象。但是里面 的属性 并非都是 我想要的，所以 就进行了改造  就有了 createSong方法
-        ret.push(createSong(musicData, arrDataVkey[index].vkey)) // 保存了好多歌的 实例 然后 有好多属性。
+        ret.push(createSongCommon(musicData, arrDataPurl[index].purl)) // 保存了好多歌的 实例 然后 有好多属性。
       })
       return ret
     }

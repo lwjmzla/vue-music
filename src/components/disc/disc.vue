@@ -8,9 +8,10 @@
 import MusicList from 'components/music-list/music-list'
 import {mapGetters} from 'vuex'
 import axios from 'axios'
-import {ERR_OK} from 'api/config'
+// import {ERR_OK} from 'api/config'
 import {createSongDisc} from 'common/js/song.js'
-import {domain} from 'common/js/config'
+// import {domain} from 'common/js/config'
+import {getPurlParams} from 'common/js/config'
 export default {
   components: {
     MusicList
@@ -38,19 +39,20 @@ export default {
         this.$router.push('/recommend')
         return
       }
+      const url = `/ustbhuangyi/music/api/getCdInfo?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=jsonp&disstid=${this.disc.dissid}&type=1&json=1&utf8=1&onlysong=0&platform=yqq&hostUin=0&needNewCode=0`
+      const data = await axios.get(url)
+      const songlist = data.data.cdlist[0].songlist
+      // console.log(songlist)
 
-      const data = await axios.get(domain + '/vkeyDisc.json')
-      const arrDataUrl = data.data.url_mid.data.midurlinfo
-
-      axios.get(domain + '/disc.json?id=' + this.disc.dissid)
-        .then((resp) => {
-          const res = resp.data
-          // console.log(res)
-          if (res.code === ERR_OK) {
-            this.songs = this._normalizeSongs(res.cdlist[0].songlist, arrDataUrl)
-            console.log(res.cdlist[0].songlist)
-          }
-        })
+      const songmid = []
+      songlist.forEach((item, index) => {
+        songmid.push(item.songmid)
+      })
+      const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
+      // console.log(dataPurl)
+      const arrDataPurl = dataPurl.data.url_mid.data.midurlinfo
+      this.songs = this._normalizeSongs(songlist, arrDataPurl)
+      console.log(this.songs)
     },
     _normalizeSongs (list, arrDataUrl) {
       let ret = []
