@@ -15,8 +15,8 @@
         <div class="middle" ref="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd" >
           <div class="middle-l" ref="middleL" >
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd" :class="cdCls">
-                <img class="image" :src="currentSong.image"  />
+              <div class="cd" ref="cd" >
+                <img class="image" :class="cdCls" ref="cdImg" :src="currentSong.image"  />
               </div>
             </div>
             <div class="playing-lyric-wrapper">
@@ -65,8 +65,8 @@
     </transition>
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
-        <div class="icon">
-          <img :class="cdCls" width="40" height="40" :src="currentSong.image" />
+        <div class="icon" ref="small_cd">
+          <img ref="small_cdImg" :class="cdCls" width="40" height="40" :src="currentSong.image" />
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
@@ -90,7 +90,7 @@
 import {mapGetters, mapMutations} from 'vuex'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
-import {playMode, domain} from 'common/js/config'
+import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 import {Base64} from 'js-base64'
 import Lyric from 'lyric-parser'
@@ -133,7 +133,7 @@ export default {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
     cdCls () {
-      return this.playing ? 'play' : 'play pause'
+      return this.playing ? '' : ''
     },
     disableCls () {
       return this.songReady ? '' : 'disable'
@@ -274,14 +274,16 @@ export default {
       this.setCurrentIndex(index)
     },
     _getLyric () {
-      axios.get(domain + '/lyric.json?id=' + this.currentSong.id)
+      // console.log(this.currentSong)
+      const url = `/ustbhuangyi/music/api/lyric?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&songmid=${this.currentSong.mid}&platform=yqq&hostUin=0&needNewCode=0&categoryId=10000000&pcachetime=1535080355295`
+      axios.get(url)
         .then((resp) => {
           const res = resp.data
           // console.log(res)
           if (res.code === ERR_OK) {
             this.lyric = Base64.decode(res.lyric) // base64 转字符串
             this.currentLyric = new Lyric(this.lyric, this._handleLyric)
-            console.log(this.currentLyric)
+            // console.log(this.currentLyric)
             if (this.playing) {
               this.currentLyric.play()
             }
@@ -390,6 +392,20 @@ export default {
       this.$nextTick(() => {
         const elAudio = this.$refs.audio
         newVal ? elAudio.play() : elAudio.pause()
+
+        if (!newVal) { // 停止的时候
+          const imgTransform = getComputedStyle(this.$refs.cdImg).transform
+          const cdTransform = getComputedStyle(this.$refs.cd).transform
+          this.$refs.cd.style.transform = cdTransform === 'none' ? imgTransform : imgTransform.concat(' ', cdTransform)
+          this.$refs.cdImg.classList.remove('play')
+          const smallcdImgTransform = getComputedStyle(this.$refs.small_cdImg).transform
+          const smallcdTransform = getComputedStyle(this.$refs.small_cd).transform
+          this.$refs.small_cd.style.transform = smallcdTransform === 'none' ? smallcdImgTransform : smallcdImgTransform.concat(' ', smallcdTransform)
+          this.$refs.small_cdImg.classList.remove('play')
+        } else {
+          this.$refs.cdImg.classList.add('play')
+          this.$refs.small_cdImg.classList.add('play')
+        }
       })
     }
   }
@@ -472,17 +488,20 @@ export default {
               box-sizing: border-box
               border: 10px solid rgba(255, 255, 255, 0.1)
               border-radius: 50%
-              &.play
-                animation: rotate 20s linear infinite
-              &.pause
-                animation-play-state: paused
               .image
                 position: absolute
                 left: 0
                 top: 0
-                width: 100%
-                height: 100%
+                right: 0
+                bottom: 0
+                margin: auto
+                width: 280px
+                height: 280px
                 border-radius: 50%
+                &.play
+                  animation: rotate 20s linear infinite
+                &.pause
+                  animation-play-state: paused
 
           .playing-lyric-wrapper
             width: 80%
@@ -601,9 +620,10 @@ export default {
       .icon
         flex: 0 0 40px
         width: 40px
-        padding: 0 10px 0 20px
+        padding: 20px
         img
           border-radius: 50%
+          vertical-align: middle
           &.play
             animation: rotate 10s linear infinite
           &.pause
@@ -638,8 +658,7 @@ export default {
           top: 0
 
   @keyframes rotate
-    0%
-      transform: rotate(0)
-    100%
-      transform: rotate(360deg)
+    100% {
+      transform: rotate(1turn);
+    }
 </style>
