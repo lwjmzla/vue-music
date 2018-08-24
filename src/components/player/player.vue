@@ -16,7 +16,9 @@
           <div class="middle-l" ref="middleL" >
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" ref="cd" >
-                <img class="image" :class="cdCls" ref="cdImg" :src="currentSong.image"  />
+                <div style="position:relative;height:100%;">
+                  <img class="image" :class="cdCls" ref="cdImg" :src="currentSong.image"  />
+                </div>
               </div>
             </div>
             <div class="playing-lyric-wrapper">
@@ -495,8 +497,8 @@ export default {
                 right: 0
                 bottom: 0
                 margin: auto
-                width: 280px
-                height: 280px
+                width: 100%
+                height: 100%
                 border-radius: 50%
                 &.play
                   animation: rotate 20s linear infinite
