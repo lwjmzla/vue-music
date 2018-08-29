@@ -27,6 +27,7 @@
     <div class="search-result" v-show="query.length">
       <suggest :query="query" @select="saveSearch"></suggest>
     </div>
+    <confirm ref="confirm" @confirm="confirm" @cancel="cancel" text="是否清空所有历史" confirmBtnText="清空"></confirm>
     <router-view></router-view>
   </div>
 </template>
@@ -34,6 +35,7 @@
 <script>
 import SearchBox from 'base/search-box/search-box'
 import SearchList from 'base/search-list/search-list'
+import confirm from 'base/confirm/confirm'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import {domain} from 'common/js/config'
@@ -51,7 +53,8 @@ export default {
   components: {
     SearchBox,
     Suggest,
-    SearchList
+    SearchList,
+    confirm
   },
   computed: {
     ...mapGetters(['searchHistory'])
@@ -113,9 +116,13 @@ export default {
       setSearchHistory: 'SET_SEARCH_HISTORY'
     }),
     deleteAllHistory () {
+      this.$refs.confirm.show()
+    },
+    confirm () {
       localStorage.setItem('__search__', JSON.stringify([]))
       this.setSearchHistory([])
-    }
+    },
+    cancel () {}
   }
 }
 </script>

@@ -604,7 +604,7 @@ export default {
         .bottom
           transform: translate3d(0, 100px, 0)
         .cd-wrapper
-          transform: translate3d(-147.5px, 397px, 0)
+          transform: translate3d(-147.5px, 397px, 0) scale(0.133)
     .mini-player
       display: flex
       align-items: center
