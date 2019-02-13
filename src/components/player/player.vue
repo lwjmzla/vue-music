@@ -163,7 +163,9 @@ export default {
     document.addEventListener('click', () => { // 添加这个解决了在UC浏览器播放不了的问题
       // alert(document.querySelector('audio'))
       if (document.querySelector('audio') && this.playing) {
-        document.querySelector('audio').play()
+        setTimeout(() => {
+          document.querySelector('audio').play()
+        })
       }
     })
   },
