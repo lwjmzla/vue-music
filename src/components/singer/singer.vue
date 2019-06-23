@@ -15,7 +15,7 @@ import axios from 'axios'
 import ListView from 'base/listview/listview'
 import Loading from 'base/loading/loading'
 import {mapMutations} from 'vuex'
-import {domain} from 'common/js/config'
+// import {domain} from 'common/js/config'
 export default {
   data () {
     return {
@@ -66,7 +66,8 @@ export default {
   },
   methods: {
     _getSingerList () {
-      axios.get(domain + '/singer.json')
+      // axios.get(domain + '/singer.json')
+      axios.get('https://easy-mock.com/mock/5d0f22b97a2f74320a3954d7/music/singer')
         .then((resp) => {
           const res = resp.data
           // console.log(res)

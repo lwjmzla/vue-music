@@ -13,7 +13,7 @@ import axios from 'axios'
 // import {ERR_OK} from 'api/config'
 import {createSongRank} from 'common/js/song.js'
 import fetchJsonp from 'fetch-jsonp'
-import {getPurlParams} from 'common/js/config'
+import {getPurlParams, prefix} from 'common/js/config'
 export default {
   components: {
     MusicList
@@ -59,7 +59,10 @@ export default {
           list.forEach((item, index) => {
             songmid.push(item.data.songmid)
           })
-          const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
+          const dataPurl = await axios.get(prefix + '/getPurl', {
+            params: getPurlParams(songmid)
+          })
+          // const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
           // console.log(dataPurl)
           const arrDataPurl = dataPurl.data.url_mid.data.midurlinfo
           this.songs = this._normalizeSongs(list, arrDataPurl)

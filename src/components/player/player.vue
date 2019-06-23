@@ -92,7 +92,7 @@
 import {mapGetters, mapMutations} from 'vuex'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
-import {playMode} from 'common/js/config'
+import {playMode, prefix} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 import {Base64} from 'js-base64'
 import Lyric from 'lyric-parser'
@@ -279,8 +279,8 @@ export default {
     },
     _getLyric () {
       // console.log(this.currentSong)
-      const url = `/ustbhuangyi/music/api/lyric?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&songmid=${this.currentSong.mid}&platform=yqq&hostUin=0&needNewCode=0&categoryId=10000000&pcachetime=1535080355295`
-      axios.get(url)
+      // const url = `/ustbhuangyi/music/api/lyric?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&songmid=${this.currentSong.mid}&platform=yqq&hostUin=0&needNewCode=0&categoryId=10000000&pcachetime=1535080355295`
+      axios.get(prefix + '/getLyric?mid=' + this.currentSong.mid)
         .then((resp) => {
           const res = resp.data
           // console.log(res)

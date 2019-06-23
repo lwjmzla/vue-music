@@ -42,7 +42,7 @@ import BScroll from 'better-scroll'
 import Loading from 'base/loading/loading'
 import {playlistMixin} from 'common/js/mixin'
 import {mapMutations} from 'vuex'
-// import {domain} from 'common/js/config'
+import {prefix} from 'common/js/config'
 
 export default {
   mixins: [playlistMixin],
@@ -72,8 +72,8 @@ export default {
       })
     },
     _getDiscList () {
-      const url = `/ustbhuangyi/music/api/getDiscList?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&platform=yqq&hostUin=0&sin=0&ein=29&sortId=5&needNewCode=0&categoryId=10000000&rnd=0.7673530246632889`
-      axios.get(url)
+      // const url = `/ustbhuangyi/music/api/getDiscList?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&platform=yqq&hostUin=0&sin=0&ein=29&sortId=5&needNewCode=0&categoryId=10000000&rnd=0.7673530246632889`
+      axios.get(prefix + '/getDiscList')
         .then((resp) => {
           const res = resp.data
           console.log(res)

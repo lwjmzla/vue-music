@@ -30,7 +30,7 @@ import BScroll from 'better-scroll'
 import {mapMutations, mapActions} from 'vuex'
 import {playlistMixin} from 'common/js/mixin'
 import fetchJsonp from 'fetch-jsonp'
-import {getPurlParams} from 'common/js/config'
+import {getPurlParams, prefix} from 'common/js/config'
 export default {
   mixins: [playlistMixin],
   components: {
@@ -75,12 +75,14 @@ export default {
       if (this.firstLoad) {
         this.searchLoading = true
       }
-      axios.get(`/ustbhuangyi/music/api/search?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&w=${this.query}&p=${this.page}&perpage=20&n=20&catZhida=1&zhidaqu=1&t=0&flag=1&ie=utf-8&sem=1&aggr=0&remoteplace=txt.mqq.all&uin=0&needNewCode=1&platform=h5`)
-        .then((res) => {
-          // console.log(res.data.data)
-          this._genResult(res.data.data)
-          this._checkMore(res.data.data)
-        })
+      // axios.get(prefix + `/searchSongs?query=${this.query}&page=${this.page}`).then((res) => {
+      //   console.log(res)
+      // })
+      axios.get(prefix + `/searchSongs?query=${this.query}&page=${this.page}`).then((res) => {
+        // console.log(res.data.data)
+        this._genResult(res.data.data)
+        this._checkMore(res.data.data)
+      })
     },
     _searchMore () {
       if (!this.hasMore) {
@@ -145,7 +147,10 @@ export default {
       list.forEach((item, index) => {
         songmid.push(item.songmid)
       })
-      const data = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
+      const data = await axios.get(prefix + '/getPurl', {
+        params: getPurlParams(songmid)
+      })
+      // const data = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
       const arrDataPurl = data.data.url_mid.data.midurlinfo
       // console.log(arrDataPurl)
       let ret = []

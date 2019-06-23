@@ -32,8 +32,8 @@ export function getPurlParams (songmid) {
   }
 }
 
-// const isDev = process.env.NODE_ENV === 'development'
+const isDev = process.env.NODE_ENV === 'development'
 
-// export const domain = isDev ? '/api' : '/showPages/api' // build不能用直接反向代理。还要设置IIS之类的
+export const prefix = isDev ? 'http://120.79.57.19:3335' : 'http://120.79.57.19:3335'
 
 export const domain = '/api' // ngnix用这个

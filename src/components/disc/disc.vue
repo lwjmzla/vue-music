@@ -11,7 +11,7 @@ import axios from 'axios'
 // import {ERR_OK} from 'api/config'
 import {createSongDisc} from 'common/js/song.js'
 // import {domain} from 'common/js/config'
-import {getPurlParams} from 'common/js/config'
+import {getPurlParams, prefix} from 'common/js/config'
 export default {
   components: {
     MusicList
@@ -39,8 +39,11 @@ export default {
         this.$router.push('/recommend')
         return
       }
-      const url = `/ustbhuangyi/music/api/getCdInfo?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=jsonp&disstid=${this.disc.dissid}&type=1&json=1&utf8=1&onlysong=0&platform=yqq&hostUin=0&needNewCode=0`
-      const data = await axios.get(url)
+
+      const data = await axios.get(prefix + `/getSongList?disstid=${this.disc.dissid}`)
+
+      // const url = `/ustbhuangyi/music/api/getCdInfo?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=jsonp&disstid=${this.disc.dissid}&type=1&json=1&utf8=1&onlysong=0&platform=yqq&hostUin=0&needNewCode=0`
+      // const data = await axios.get(url)
       const songlist = data.data.cdlist[0].songlist
       // console.log(songlist)
 
@@ -48,7 +51,23 @@ export default {
       songlist.forEach((item, index) => {
         songmid.push(item.songmid)
       })
-      const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
+
+      // axios({
+      //   method: 'post',
+      //   url: prefix + '/getPurl',
+      //   data: {num: 1}, // qs.stringify({ a: ['b', 'c', 'd'] }, { indices: false }); 如果里面放了数组之类的 加上  { indices: false } 去qs文档看
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //     // 'Content-Type': 'application/x-www-form-urlencoded' // 有时候要配置这个。
+      //   }
+      // }).then((res) => {
+      //   console.log(res)
+      // })
+      const dataPurl = await axios.get(prefix + '/getPurl', {
+        params: getPurlParams(songmid)
+      })
+
+      // const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
       // console.log(dataPurl)
       const arrDataPurl = dataPurl.data.url_mid.data.midurlinfo
       this.songs = this._normalizeSongs(songlist, arrDataPurl)

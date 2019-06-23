@@ -23,7 +23,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import {domain} from 'common/js/config'
+// import {domain} from 'common/js/config'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
 import BScroll from 'better-scroll'
@@ -52,7 +52,8 @@ export default {
   },
   methods: {
     _getTopList () {
-      axios.get(domain + '/getRank.json')
+      // axios.get(domain + '/getRank.json')
+      axios.get('https://easy-mock.com/mock/5d0f22b97a2f74320a3954d7/music/rank')
         .then((resp) => {
           const res = resp.data
           if (res.code === ERR_OK) {

@@ -14,7 +14,7 @@ import {createSongCommon} from 'common/js/song.js'
 import MusicList from 'components/music-list/music-list'
 // import {domain} from 'common/js/config'
 import fetchJsonp from 'fetch-jsonp'
-import {getPurlParams} from 'common/js/config'
+import {getPurlParams, prefix} from 'common/js/config'
 export default {
   data () {
     return {
@@ -61,7 +61,10 @@ export default {
           list.forEach((item, index) => {
             songmid.push(item.musicData.songmid)
           })
-          const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
+          const dataPurl = await axios.get(prefix + '/getPurl', {
+            params: getPurlParams(songmid)
+          })
+          // const dataPurl = await axios.post('/ustbhuangyi/music/api/getPurlUrl', getPurlParams(songmid))
           // console.log(dataPurl)
           const arrDataPurl = dataPurl.data.url_mid.data.midurlinfo
           this.songs = this._normalizeSongs(list, arrDataPurl)

@@ -38,7 +38,7 @@ import SearchList from 'base/search-list/search-list'
 import confirm from 'base/confirm/confirm'
 import {ERR_OK} from 'api/config'
 import axios from 'axios'
-import {domain} from 'common/js/config'
+// import {domain} from 'common/js/config'
 import Suggest from 'components/suggest/suggest'
 import {mapGetters, mapMutations} from 'vuex'
 export default {
@@ -65,7 +65,8 @@ export default {
   },
   methods: {
     _getHotKey () {
-      axios.get(domain + '/getHotKey.json')
+      // axios.get(domain + '/getHotKey.json')
+      axios.get('https://easy-mock.com/mock/5d0f22b97a2f74320a3954d7/music/hotKey')
         .then((resp) => {
           const res = resp.data
           // console.log(res)
