@@ -137,7 +137,7 @@ export default {
       margin: 20px
     .shortcut-wrapper
       position: fixed
-      top: 178px
+      top: 208px
       bottom: 0
       width: 100%
       .shortcut

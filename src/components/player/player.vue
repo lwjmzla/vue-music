@@ -443,7 +443,7 @@ export default {
         margin-bottom: 25px
         .back
           position absolute
-          top: 0
+          top: 30px
           left: 6px
           z-index: 50
           .icon-back

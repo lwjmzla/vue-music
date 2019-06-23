@@ -92,7 +92,7 @@ export default {
 <style lang="stylus" scoped>
   .singer
     position: fixed
-    top: 88px
+    top: 118px
     bottom: 0
     width: 100%
     .loading-container
