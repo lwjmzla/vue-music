@@ -3,7 +3,7 @@
     <transition name="normal">
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
-          <img width="100%" height="100%" :src="currentSong.image" />
+          <img width="100%" height="100%" :src="currentSong.pic" />
         </div>
         <div class="top">
           <div class="back" @click="back">
@@ -17,7 +17,7 @@
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" ref="cd" >
                 <div style="position:relative;height:100%;">
-                  <img class="image" :class="cdCls" ref="cdImg" :src="currentSong.image"  />
+                  <img class="image" :class="cdCls" ref="cdImg" :src="currentSong.pic"  />
                 </div>
               </div>
             </div>
@@ -68,7 +68,7 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon" ref="small_cd">
-          <img ref="small_cdImg" :class="cdCls" width="40" height="40" :src="currentSong.image" />
+          <img ref="small_cdImg" :class="cdCls" width="40" height="40" :src="currentSong.pic" />
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
@@ -238,7 +238,7 @@ export default {
       }
     },
     updateTime (e) {
-      // console.dir(e.target)
+      // console.dir(e.target) //!一直更新的
       // console.log(typeof e.target.duration)
       this.currentDuration = e.target.currentTime
       this.totalDuration = e.target.duration
@@ -377,6 +377,7 @@ export default {
         return
       }
       // this.totalDuration = newVal.duration
+      console.log(newVal.duration)
       this.totalTime = this.countTime(newVal.duration)
       if (this.currentLyric) {
         this.currentLyric.stop()

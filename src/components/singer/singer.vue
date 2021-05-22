@@ -16,6 +16,7 @@ import ListView from 'base/listview/listview'
 import Loading from 'base/loading/loading'
 import {mapMutations} from 'vuex'
 // import {domain} from 'common/js/config'
+import data from './data'
 export default {
   data () {
     return {
@@ -24,36 +25,35 @@ export default {
   },
   computed: {
     hotSingers () {
-      let arr = []
-      arr = this.singers.filter((obj, index) => {
-        return index <= 9
-      })
-      return arr
+      console.log(this.singers[0].list)
+      return this.singers[0].list
     },
     normalSingers () {
-      let obj = {}
-      this.singers.forEach((value, index) => {
-        if (!obj[value.Findex]) {
-          obj[value.Findex] = {
-            title: value.Findex,
-            items: []
-          }
-        }
-        let subObj = obj[value.Findex]
-        subObj.items.push(value)
-      })
-      if (obj[9]) {
-        delete obj[9]
-      }
-      // console.log(obj)
-      // 排序数据
-      let arr = []
-      for (let key in obj) {
-        arr.push(obj[key])
-      }
-      arr.sort((a, b) => {
-        return a.title.charCodeAt(0) - b.title.charCodeAt(0)
-      })
+      // let obj = {}
+      // this.singers.forEach((value, index) => {
+      //   if (!obj[value.Findex]) {
+      //     obj[value.Findex] = {
+      //       title: value.Findex,
+      //       items: []
+      //     }
+      //   }
+      //   let subObj = obj[value.Findex]
+      //   subObj.items.push(value)
+      // })
+      // if (obj[9]) {
+      //   delete obj[9]
+      // }
+      // // console.log(obj)
+      // // 排序数据
+      // let arr = []
+      // for (let key in obj) {
+      //   arr.push(obj[key])
+      // }
+      // arr.sort((a, b) => {
+      //   return a.title.charCodeAt(0) - b.title.charCodeAt(0)
+      // })
+      let arr = this.singers.slice(1)
+      console.log(arr)
       return arr
     }
   },
@@ -75,10 +75,11 @@ export default {
             this.singers = res.data.list
           }
         })
+      this.singers = data.result.singers
     },
     selectSinger (item) {
       this.$router.push({
-        path: `/singer/${item.Fsinger_mid}`
+        path: `/singer/${item.mid}`
       })
       this.setSinger(item)
     },

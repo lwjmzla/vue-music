@@ -28,6 +28,11 @@ export default new Router({
       ]
     },
     {
+      path: '/singerDetail',
+      name: 'singerDetail',
+      component: SingerDetail
+    },
+    {
       path: '/singer',
       name: 'Singer',
       component: Singer,

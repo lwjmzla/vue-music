@@ -2,9 +2,9 @@
   <div class="song-list">
     <ul>
       <li v-for="(song,index) in songs" class="item" :key="index" @click="selectItem(song,index)">
-        <div class="rank" v-show="rank">
+        <!-- <div class="rank" v-show="rank">
           <span :class="getRankCls(index)">{{filter(index)}}</span>
-        </div>
+        </div> -->
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{getDesc(song)}}</p>

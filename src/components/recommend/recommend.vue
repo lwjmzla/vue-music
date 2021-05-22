@@ -3,9 +3,9 @@
     <div class="recommend-content" ref="">
       <div v-if="recommends.length" class="slider-wrapper">
         <slider>
-          <div v-for="item in recommends" :key="item.id">
-            <a :href="item.linkUrl">
-              <img :src="item.picUrl" @load="refreshScroll"/>
+          <div v-for="(item,index) in recommends" :key="index">
+            <a :href="item.link">
+              <img :src="item.pic" @load="refreshScroll"/>
             </a>
           </div>
         </slider>
@@ -13,13 +13,13 @@
       <div class="recommend-list">
         <h1 class="list-title">热门歌单推荐</h1>
         <ul>
-          <li v-for="item in discList" :key="item.listennum" class="item" @click="selectItem(item)">
+          <li v-for="(item,index) in discList" :key="index" class="item" @click="selectItem(item)">
             <div class="icon">
-              <img width="60" height="60" v-lazy="item.imgurl"/>
+              <img width="60" height="60" v-lazy="item.pic"/>
             </div>
             <div class="text">
-              <h2 class="name" v-html="item.creator.name"></h2>
-              <p class="desc" v-html="item.dissname"></p>
+              <h2 class="name" v-html="item.username"></h2>
+              <p class="desc" v-html="item.title"></p>
             </div>
           </li>
         </ul>
@@ -43,6 +43,7 @@ import Loading from 'base/loading/loading'
 import {playlistMixin} from 'common/js/mixin'
 import {mapMutations} from 'vuex'
 import {prefix} from 'common/js/config'
+import data from './data'
 
 export default {
   mixins: [playlistMixin],
@@ -55,7 +56,7 @@ export default {
   },
   created () {
     this._getRecommend()
-    this._getDiscList()
+    // this._getDiscList()
   },
   mounted () {
     this.scroll = new BScroll(this.$refs.recommend, {
@@ -64,12 +65,18 @@ export default {
   },
   methods: {
     _getRecommend () {
-      types.getRecommend().then((res) => {
-        // console.log(res.data.slider)
-        if (res.code === ERR_OK) {
-          this.recommends = res.data.slider
-        }
-      })
+      // types.getRecommend().then((res) => {
+      //   // console.log(res.data.slider)
+      //   if (res.code === ERR_OK) {
+      //     this.recommends = res.data.slider
+      //   }
+      // })
+      axios.get('/ustbhuangyi' + '/music-next/api/getRecommend')
+        .then((res) => {
+
+        })
+      this.recommends = data.result.sliders
+      this.discList = data.result.albums
     },
     _getDiscList () {
       // const url = `/ustbhuangyi/music/api/getDiscList?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&platform=yqq&hostUin=0&sin=0&ein=29&sortId=5&needNewCode=0&categoryId=10000000&rnd=0.7673530246632889`

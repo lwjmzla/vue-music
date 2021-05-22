@@ -5,17 +5,17 @@
         <h2 class="list-group-title">热门</h2>
         <ul>
           <li v-for="(item,index) in hotSingers" @click="selectItem(item)" class="list-group-item" :key="index">
-            <img class="avatar" :src="'https://y.gtimg.cn/music/photo_new/T001R300x300M000'+item.Fsinger_mid+'.jpg?max_age=2592000'">
-            <span class="name">{{item.Fsinger_name}}</span>
+            <img class="avatar" :src="item.pic">
+            <span class="name">{{item.name}}</span>
           </li>
         </ul>
       </li>
       <li v-for="(group,index) in normalSingers" class="list-group listAlpha" :ref="group.title" :key="index">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li v-for="(item,index) in group.items" @click="selectItem(item)" class="list-group-item" :key="index">
-            <img class="avatar" v-lazy="'https://y.gtimg.cn/music/photo_new/T001R300x300M000'+item.Fsinger_mid+'.jpg?max_age=2592000'">
-            <span class="name">{{item.Fsinger_name}}</span>
+          <li v-for="(item,index) in group.list" @click="selectItem(item)" class="list-group-item" :key="index">
+            <img class="avatar" v-lazy="item.pic">
+            <span class="name">{{item.name}}</span>
           </li>
         </ul>
       </li>
